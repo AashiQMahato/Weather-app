@@ -35,11 +35,9 @@ body {
 /* Sky Blue Gradient Background */
 .sky-gradient-bg {
   background: linear-gradient(135deg, 
-    #0ea5e9 0%,     /* sky-500 */
-    #0284c7 25%,    /* sky-600 */
-    #0369a1 50%,    /* sky-700 */
-    #075985 75%,    /* sky-800 */
-    #0c4a6e 100%    /* sky-900 */
+    #0d5d39 0%,     /* sky-500 */   /* sky-700 */
+    #07334b 75%,    /* sky-800 */
+    #0e41af 100%    /* sky-900 */
   );
 }
 

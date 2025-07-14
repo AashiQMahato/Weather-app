@@ -22,10 +22,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     children, 
     ...props 
   }, ref) => {
+    // Ensure consistent boolean handling
     const isDisabled = Boolean(disabled) || Boolean(loading);
 
     const baseStyles = cn(
-      // Base styles
+      // Base styles - consistent between server and client
       'inline-flex items-center justify-center rounded-lg font-medium',
       'focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:ring-offset-2',
       'disabled:opacity-60 disabled:cursor-not-allowed',
@@ -39,19 +40,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       
       // Variant styles
       {
-        // Default variant
         'bg-sky-600 text-white shadow-sm hover:bg-sky-700 active:bg-sky-800': 
           variant === 'default',
-        
-        // Glass variant
         'bg-sky-500/20 text-white border border-sky-300/30 backdrop-blur-sm hover:bg-sky-500/30 hover:border-sky-300/50': 
           variant === 'glass',
-        
-        // Outline variant
         'border border-sky-300/60 text-sky-100 bg-transparent hover:bg-sky-500/10 hover:border-sky-300/80 hover:text-white': 
           variant === 'outline',
-        
-        // Ghost variant
         'text-sky-100 bg-transparent hover:bg-sky-500/15 hover:text-white': 
           variant === 'ghost',
       },
