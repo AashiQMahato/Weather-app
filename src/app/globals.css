@@ -1,151 +1,110 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-/* Sky Blue Theme Variables */
-:root {
-  --sky-blue-50: #f0f9ff;
-  --sky-blue-100: #e0f2fe;
-  --sky-blue-200: #bae6fd;
-  --sky-blue-300: #7dd3fc;
-  --sky-blue-400: #38bdf8;
-  --sky-blue-500: #0ea5e9;
-  --sky-blue-600: #0284c7;
-  --sky-blue-700: #0369a1;
-  --sky-blue-800: #075985;
-  --sky-blue-900: #0c4a6e;
-  --sky-blue-950: #082f49;
+  /* Text on the dark sky backgrounds. All tiers pass WCAG AA on every scene. */
+  --color-ink: rgb(255 255 255);
+  --color-ink-2: rgb(255 255 255 / 0.78);
+  --color-ink-3: rgb(255 255 255 / 0.62);
+
+  /* Status colors, reserved for insights and levels. */
+  --color-good: #6ee7b7;
+  --color-info: #93c5fd;
+  --color-warning: #fcd34d;
+  --color-critical: #fca5a5;
 }
 
-html {
-  height: 100%;
+:root {
+  color-scheme: dark;
+  --scene-from: #1e5fa8;
+  --scene-via: #2b7bd0;
+  --scene-to: #0b2d5c;
+  --glow: rgb(255 214 120 / 0.35);
+}
+
+/* Each scene is a vertical sky. Kept dark enough for white text. */
+[data-scene="clear-day"] { --scene-from: #1d6fc4; --scene-via: #2a83d6; --scene-to: #0d3466; --glow: rgb(255 214 120 / 0.38); }
+[data-scene="clear-night"] { --scene-from: #0b1026; --scene-via: #1b2350; --scene-to: #05070f; --glow: rgb(165 180 252 / 0.22); }
+[data-scene="cloudy"] { --scene-from: #3d4f66; --scene-via: #4b5f78; --scene-to: #1c2533; --glow: rgb(226 232 240 / 0.14); }
+[data-scene="rain"] { --scene-from: #26384f; --scene-via: #34506d; --scene-to: #0f1a29; --glow: rgb(125 211 252 / 0.16); }
+[data-scene="storm"] { --scene-from: #1f1838; --scene-via: #322a58; --scene-to: #0b0816; --glow: rgb(196 181 253 / 0.2); }
+[data-scene="snow"] { --scene-from: #3b5677; --scene-via: #557497; --scene-to: #1c2c42; --glow: rgb(240 249 255 / 0.2); }
+[data-scene="fog"] { --scene-from: #4a5563; --scene-via: #5b6675; --scene-to: #20262e; --glow: rgb(241 245 249 / 0.14); }
+
+html,
+body {
+  min-height: 100%;
 }
 
 body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  background: #0b1a33;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Sky Blue Gradient Background */
-.sky-gradient-bg {
-  background: linear-gradient(135deg, 
-    #0d5d39 0%,     /* sky-500 */   /* sky-700 */
-    #07334b 75%,    /* sky-800 */
-    #0e41af 100%    /* sky-900 */
-  );
+.sky {
+  position: relative;
+  isolation: isolate;
 }
 
-/* Glass morphism effects with sky blue tint */
-.glass-effect {
-  background: rgba(14, 165, 233, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* A fixed layer instead of background-attachment: fixed, which iOS ignores. */
+.sky::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60rem 40rem at 85% -10%, var(--glow), transparent 60%),
+    linear-gradient(180deg, var(--scene-from) 0%, var(--scene-via) 45%, var(--scene-to) 100%);
 }
 
-.glass-effect-strong {
-  background: rgba(14, 165, 233, 0.15);
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+/* Frosted card surface. */
+.panel {
+  background: rgb(255 255 255 / 0.08);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 12px 32px -16px rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
-/* Custom scrollbar for sky theme */
-::-webkit-scrollbar {
-  width: 6px;
+.no-scrollbar {
+  scrollbar-width: none;
 }
-
-::-webkit-scrollbar-track {
-  background: rgba(14, 165, 233, 0.1);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(14, 165, 233, 0.3);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(14, 165, 233, 0.5);
-}
-
-/* Sky blue glow effects */
-.sky-glow {
-  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
-}
-
-.sky-glow-strong {
-  box-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
-}
-
-/* Glass effect utilities */
-.glass-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-/* Floating animation for background elements */
-@keyframes float {
-  0%, 100% { 
-    transform: translateY(0px); 
-  }
-  50% { 
-    transform: translateY(-10px); 
-  }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-/* Add these scrollbar styles to your existing globals.css */
-
-/* Custom Scrollbar for Sidebar */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  @apply bg-sky-500/10 rounded-full;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  @apply bg-sky-300/30 rounded-full;
-  transition: background-color 0.2s ease;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  @apply bg-sky-300/50;
-}
-
-/* Firefox scrollbar */
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(147, 197, 253, 0.3) rgba(14, 165, 233, 0.1);
-}
-
-/* Hide scrollbar for collapsed state */
-.scrollbar-hidden::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-.scrollbar-hidden {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
-/* Smooth transitions */
-.sidebar-transition {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.9);
+  outline-offset: 2px;
 }
 
-/* Remove focus outline for buttons in sidebar */
-.sidebar-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.5);
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.06) 25%, rgb(255 255 255 / 0.14) 50%, rgb(255 255 255 / 0.06) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+  border-radius: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

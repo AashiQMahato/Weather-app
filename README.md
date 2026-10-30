@@ -1,40 +1,62 @@
-# WeatherApp - AI-Enhanced Weather Dashboard
+# Skycast
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black)](https://weatherapp-aashik9567.vercel.app)
-[![Built by](https://img.shields.io/badge/Built%20by-Aashik9567-blue)](https://github.com/Aashik9567)
-[![Last Updated](https://img.shields.io/badge/Last%20Updated-2025--06--17%2005:37:27%20UTC-green)](https://github.com/Aashik9567/weatherapp)
+A fast, good-looking weather dashboard built with Next.js 15, React 19 and Tailwind CSS v4.
 
-A modern, responsive weather application built with Next.js 14 and React 18, featuring OpenAI integration for intelligent weather insights and personalized recommendations.
+Weather data comes from [Open-Meteo](https://open-meteo.com/). It's free and needs **no API key**, so the app
+deploys to Vercel with zero configuration.
 
-## 🌟 Live Demo
-**🔗 [weatherapp-aashik9567.vercel.app](https://weatherapp-aashik9567.vercel.app)**
+## Features
 
-## 🎯 Key Features
-- ⚡ Real-time weather data with auto-refresh
-- 🤖 AI-powered analysis using OpenAI GPT-3.5 Turbo
-- 📍 Interactive location search with geolocation support
-- 📊 Comprehensive 10-day forecast with hourly details
-- 🔔 Real-time notification system
-- 📱 Responsive glass morphism design
-- 📈 Data visualization with interactive charts
+- Current conditions with a background that matches the sky (clear, night, clouds, rain, storm, snow, fog)
+- 24-hour temperature chart and hourly strip with chance of rain
+- 10-day forecast with temperature range bars on a shared scale
+- Wind, humidity and dew point, UV index, sunrise and sunset, precipitation, visibility, pressure and cloud cover
+- Air quality (US AQI, PM2.5, PM10, ozone, NO₂)
+- Plain-language tips (rain soon, high UV, strong gusts, poor air, big temperature swings)
+- City search with keyboard navigation, plus "use my location"
+- Saved places, °C/°F toggle and last location, all remembered in the browser
+- Refreshes every 10 minutes while the tab is visible
+- Accessible: labelled controls, visible focus rings, reduced-motion support
 
-## 🛠️ Technologies
-- **Frontend:** Next.js 14, React 18, TypeScript
-- **Styling:** Tailwind CSS, Custom Components
-- **AI Integration:** OpenAI GPT-3.5 Turbo API
-- **APIs:** Weather APIs, Geolocation API
-- **Deployment:** Vercel
-- **Features:** SSR, Real-time updates, PWA capabilities
+## Getting started
 
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+ 
-- npm 8+
-- OpenAI API key
-
-### Installation
-1. Clone the repository
 ```bash
-git clone https://github.com/Aashik9567/weatherapp.git
-cd weatherapp
+npm install
+npm run dev
+```
+
+Then open http://localhost:3000.
+
+| Script              | What it does                    |
+| ------------------- | ------------------------------- |
+| `npm run dev`       | Start the dev server            |
+| `npm run build`     | Production build                |
+| `npm run start`     | Serve the production build      |
+| `npm run lint`      | ESLint                          |
+| `npm run typecheck` | TypeScript, no emit             |
+
+## Deploy to Vercel
+
+1. Push the repository to GitHub.
+2. In Vercel, choose **Add New → Project** and import the repo.
+3. Keep the detected defaults (framework: Next.js). You don't need any environment variables.
+4. Click **Deploy**.
+
+## Project structure
+
+```
+src/
+  app/            layout, page, error and 404 pages, app icon
+  components/     UI panels (hero, hourly, daily, details, air quality, tips, search)
+  hooks/          useWeather (fetch + refresh), usePersistentState (localStorage)
+  lib/
+    api.ts        Open-Meteo forecast, geocoding and air-quality clients
+    conditions.ts WMO weather codes → label, icon, scene
+    format.ts     unit conversion and local-time formatting
+    insights.ts   rule-based weather tips
+```
+
+## Credits
+
+Weather data by [Open-Meteo](https://open-meteo.com/) (CC BY 4.0). Reverse geocoding for "use my location" by
+BigDataCloud's free client API.

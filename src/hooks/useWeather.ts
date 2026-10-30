@@ -1,131 +1,55 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { WeatherData, ForecastData } from '@/lib/types/weather';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { getWeather } from '@/lib/api';
+import type { Place, WeatherReport } from '@/lib/types';
 
-interface UseWeatherOptions {
-  location?: string;
-  autoFetch?: boolean;
-  refreshInterval?: number; // in minutes
-}
+const REFRESH_MS = 10 * 60 * 1000;
 
-interface WeatherState {
-  current: WeatherData | null;
-  forecast: ForecastData[] | null;
-  loading: boolean;
+interface State {
+  report: WeatherReport | null;
   error: string | null;
+  loading: boolean;
+  updatedAt: number | null;
 }
 
-export function useWeather(options: UseWeatherOptions = {}) {
-  const { location = 'London', autoFetch = true, refreshInterval = 5 } = options;
-  
-  const [state, setState] = useState<WeatherState>({
-    current: null,
-    forecast: null,
-    loading: false,
-    error: null,
-  });
+export function useWeather(place: Place | null) {
+  const [state, setState] = useState<State>({ report: null, error: null, loading: false, updatedAt: null });
+  const controllerRef = useRef<AbortController | null>(null);
 
-  const fetchWeather = useCallback(async (searchLocation?: string) => {
-    const targetLocation = searchLocation || location;
-    
-    setState(prev => ({ ...prev, loading: true, error: null }));
+  const load = useCallback(async () => {
+    if (!place) return;
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
 
+    setState((s) => ({ ...s, loading: true, error: null }));
     try {
-      // Fetch both current weather and forecast
-      const [currentResponse, forecastResponse] = await Promise.all([
-        fetch(`/api/weather/current?location=${encodeURIComponent(targetLocation)}`),
-        fetch(`/api/weather/forecast?location=${encodeURIComponent(targetLocation)}&days=7`)
-      ]);
-
-      if (!currentResponse.ok || !forecastResponse.ok) {
-        throw new Error('Failed to fetch weather data');
-      }
-
-      const currentData = await currentResponse.json();
-      const forecastData = await forecastResponse.json();
-
-      if (!currentData.success || !forecastData.success) {
-        throw new Error(
-          currentData.error?.message || 
-          forecastData.error?.message || 
-          'Unknown error occurred'
-        );
-      }
-
-      setState({
-        current: currentData.data,
-        forecast: forecastData.data.forecast,
+      const report = await getWeather(place, controller.signal);
+      setState({ report, error: null, loading: false, updatedAt: Date.now() });
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      setState((s) => ({
+        ...s,
         loading: false,
-        error: null,
-      });
-
-    } catch (error: any) {
-      console.error('Weather fetch error:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.message || 'Failed to fetch weather data',
+        error: error instanceof Error ? error.message : 'Something went wrong.',
       }));
     }
-  }, [location]);
+  }, [place]);
 
-  const fetchWeatherByCoords = useCallback(async (lat: number, lon: number) => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
-
-    try {
-      const response = await fetch(`/api/weather/current?lat=${lat}&lon=${lon}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch weather data');
-      }
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error?.message || 'Unknown error occurred');
-      }
-
-      // Also fetch forecast for this location
-      await fetchWeather(`${lat},${lon}`);
-
-    } catch (error: any) {
-      console.error('Weather fetch by coords error:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.message || 'Failed to fetch weather data',
-      }));
-    }
-  }, [fetchWeather]);
-
-  const refreshWeather = useCallback(() => {
-    fetchWeather();
-  }, [fetchWeather]);
-
-  // Auto-fetch on mount
   useEffect(() => {
-    if (autoFetch) {
-      fetchWeather();
-    }
-  }, [autoFetch, fetchWeather]);
+    load();
+    return () => controllerRef.current?.abort();
+  }, [load]);
 
-  // Auto-refresh interval
+  // Refresh periodically, but only while the tab is visible.
   useEffect(() => {
-    if (refreshInterval > 0 && autoFetch) {
-      const interval = setInterval(() => {
-        fetchWeather();
-      }, refreshInterval * 60 * 1000);
+    if (!place) return;
+    const id = window.setInterval(() => {
+      if (document.visibilityState === 'visible') load();
+    }, REFRESH_MS);
+    return () => window.clearInterval(id);
+  }, [place, load]);
 
-      return () => clearInterval(interval);
-    }
-  }, [refreshInterval, autoFetch, fetchWeather]);
-
-  return {
-    ...state,
-    fetchWeather,
-    fetchWeatherByCoords,
-    refreshWeather,
-    isLoading: state.loading,
-  };
+  return { ...state, refresh: load };
 }
