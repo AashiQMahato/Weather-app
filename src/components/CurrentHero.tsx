@@ -21,6 +21,11 @@ export function CurrentHero({ place, current, today, units, saved, onToggleSaved
         <div className="flex items-center gap-2">
           <h1 id="place-name" className="truncate text-3xl font-semibold tracking-tight sm:text-4xl">
             {place.name}
+            {place.localName && (
+              <span lang="ne" className="ml-3 text-xl font-normal text-ink-2 sm:text-2xl">
+                {place.localName}
+              </span>
+            )}
           </h1>
           <button
             type="button"

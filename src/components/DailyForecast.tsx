@@ -25,11 +25,11 @@ export function DailyForecast({ days, today, currentTemperature, units }: DailyF
           const { icon: Icon, label } = describeCondition(day.weatherCode, true);
           const isToday = i === 0;
           return (
-            <li key={day.date} className="grid grid-cols-[3.25rem_2rem_2.75rem_1fr_2.75rem] items-center gap-3 py-3 sm:grid-cols-[4rem_2rem_3rem_2.75rem_1fr_2.75rem]">
+            <li key={day.date} className="grid grid-cols-[3.25rem_2rem_2.75rem_1fr_2.75rem] items-center gap-3 py-3 sm:grid-cols-[4rem_2rem_3rem_2.75rem_1fr_2.75rem] lg:grid-cols-[2.75rem_1.75rem_2.5rem_1fr_2.5rem]">
               <span className="text-sm font-medium">{weekday(day.date, today)}</span>
               <Icon className="size-6" strokeWidth={1.5} aria-label={label} />
               <span
-                className={`tabular hidden items-center gap-0.5 text-xs sm:inline-flex ${day.precipitationProbability >= 20 ? 'text-info' : 'text-transparent'}`}
+                className={`tabular hidden items-center gap-0.5 text-xs sm:inline-flex lg:hidden ${day.precipitationProbability >= 20 ? 'text-info' : 'text-transparent'}`}
                 aria-hidden={day.precipitationProbability < 20}
               >
                 <Droplets className="size-3" aria-hidden />

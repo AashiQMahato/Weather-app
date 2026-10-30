@@ -97,7 +97,13 @@ export function SearchBar({ onSelect }: SearchBarProps) {
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
-        const place = await placeFromCoords(coords.latitude, coords.longitude);
+        const place = await placeFromCoords(coords.latitude, coords.longitude).catch(() => ({
+          id: `${coords.latitude.toFixed(3)},${coords.longitude.toFixed(3)}`,
+          name: 'My location',
+          subtitle: `${coords.latitude.toFixed(2)}°, ${coords.longitude.toFixed(2)}°`,
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        }));
         setLocating(false);
         choose(place);
       },
@@ -128,8 +134,8 @@ export function SearchBar({ onSelect }: SearchBarProps) {
           aria-controls={listId}
           aria-autocomplete="list"
           aria-activedescendant={active >= 0 && results[active] ? `${listId}-${active}` : undefined}
-          aria-label="Search for a city"
-          placeholder="Search city…"
+          aria-label="Search for a city or place"
+          placeholder="Search Nepal or any city…"
           autoComplete="off"
           spellCheck={false}
           value={query}
@@ -169,7 +175,10 @@ export function SearchBar({ onSelect }: SearchBarProps) {
               >
                 <MapPin className="size-4 shrink-0 text-ink-3" aria-hidden />
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-ink">{place.name}</span>
+                  <span className="block truncate text-sm font-medium text-ink">
+                    {place.name}
+                    {place.localName && <span className="ml-2 font-normal text-ink-2">{place.localName}</span>}
+                  </span>
                   <span className="block truncate text-xs text-ink-3">{place.subtitle}</span>
                 </span>
               </li>
