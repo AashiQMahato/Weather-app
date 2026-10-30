@@ -1,11 +1,20 @@
 import type { Metadata, Viewport } from 'next';
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
+import { Geist, Geist_Mono, Noto_Sans_Devanagari } from 'next/font/google';
 import './globals.css';
 
+const geistSans = Geist({ subsets: ['latin'], variable: '--font-geist-sans', display: 'swap' });
+const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono', display: 'swap' });
+// Geist has no Devanagari glyphs; this covers Nepali place names.
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ['devanagari'],
+  weight: ['400', '500'],
+  variable: '--font-devanagari',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
-  title: 'Skycast · Weather forecast',
-  description: 'Live conditions, hourly and 10-day forecasts, air quality and plain-language weather tips for any place on Earth.',
+  title: 'Skycast · Nepal weather forecast',
+  description: 'Weather for Nepal: live conditions, hourly and 10-day forecasts, air quality and plain-language tips for Kathmandu, Pokhara and every city in Nepal.',
   applicationName: 'Skycast',
 };
 
@@ -17,7 +26,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${devanagari.variable}`}>
       <body>{children}</body>
     </html>
   );

@@ -1,6 +1,8 @@
 export interface Place {
   id: string;
   name: string;
+  /** Name in Nepali (Devanagari), when known. */
+  localName?: string;
   /** Region and country, e.g. "England, United Kingdom". */
   subtitle: string;
   latitude: number;
@@ -63,4 +65,11 @@ export interface WeatherReport {
   hourly: HourlyPoint[];
   daily: DailyPoint[];
   airQuality: AirQuality | null;
+}
+
+export interface CityNow {
+  place: Place;
+  temperature: number | null;
+  weatherCode: number;
+  isDay: boolean;
 }

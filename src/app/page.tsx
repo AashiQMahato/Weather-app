@@ -10,22 +10,19 @@ import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { DetailsGrid } from '@/components/DetailsGrid';
 import { HourlyForecast } from '@/components/HourlyForecast';
 import { InsightsPanel } from '@/components/InsightsPanel';
+import { NepalCities } from '@/components/NepalCities';
 import { SearchBar } from '@/components/SearchBar';
 import { usePersistentState } from '@/hooks/usePersistentState';
 import { useWeather } from '@/hooks/useWeather';
 import { describeCondition } from '@/lib/conditions';
 import { buildInsights } from '@/lib/insights';
+import { DEFAULT_PLACE, DEFAULT_SAVED } from '@/lib/nepal';
 import type { Place, Units } from '@/lib/types';
 
-const DEFAULT_PLACES: Place[] = [
-  { id: '2643743', name: 'London', subtitle: 'England, United Kingdom', latitude: 51.50853, longitude: -0.12574 },
-  { id: '5128581', name: 'New York', subtitle: 'New York, United States', latitude: 40.71427, longitude: -74.00597 },
-  { id: '1850147', name: 'Tokyo', subtitle: 'Tokyo, Japan', latitude: 35.6895, longitude: 139.69171 },
-];
-
 export default function Home() {
-  const [place, setPlace, placeReady] = usePersistentState<Place>('skycast:place', DEFAULT_PLACES[0]);
-  const [saved, setSaved] = usePersistentState<Place[]>('skycast:saved', DEFAULT_PLACES);
+  // v2 keys: the earlier build defaulted to London, New York and Tokyo.
+  const [place, setPlace, placeReady] = usePersistentState<Place>('skycast:v2:place', DEFAULT_PLACE);
+  const [saved, setSaved] = usePersistentState<Place[]>('skycast:v2:saved', DEFAULT_SAVED);
   const [units, setUnits] = usePersistentState<Units>('skycast:units', 'metric');
   // Wait for the stored place so we don't fetch the default first and then refetch.
   const { report, error, loading, refresh, updatedAt } = useWeather(placeReady ? place : null);
@@ -127,6 +124,8 @@ export default function Home() {
               saved={isSaved}
               onToggleSaved={toggleSaved}
             />
+
+            <NepalCities units={units} selectedId={place.id} onSelect={setPlace} />
 
             {error && (
               <p role="status" className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-2 text-sm text-warning">
