@@ -85,7 +85,7 @@ export function SettingsView() {
             {[
               ['Forecast & air quality', 'Open-Meteo (CC BY 4.0), using national weather models and Copernicus CAMS.', 'https://open-meteo.com/'],
               ['Radar', 'RainViewer public radar mosaics.', 'https://www.rainviewer.com/'],
-              ['Base map', '© OpenStreetMap contributors, © CARTO.', 'https://carto.com/attributions'],
+              ['Base maps', 'Esri (street map, imagery, gray canvas), © OpenStreetMap contributors, OpenTopoMap.', 'https://www.esri.com/'],
               ['Official alerts', 'US National Weather Service (United States only).', 'https://www.weather.gov/'],
               ['AI', 'Groq, running open models. AI text interprets the data above and can be wrong.', 'https://groq.com/'],
               ['Place names', 'Open-Meteo geocoding (GeoNames) and BigDataCloud reverse geocoding.', 'https://www.geonames.org/'],

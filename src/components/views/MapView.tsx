@@ -4,7 +4,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { CloudRain, Cloudy, Radar, Thermometer, Wind } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageStates';
-import type { BasemapId } from '@/components/maps/basemaps';
+import { DEFAULT_BASEMAP, validBasemap, type BasemapId } from '@/components/maps/basemaps';
 import type { MapLayer } from '@/components/maps/WeatherMap';
 import { usePersistentState } from '@/hooks/usePersistentState';
 import { usePreferences } from '@/providers/PreferencesProvider';
@@ -26,11 +26,12 @@ const LAYERS: { value: MapLayer; label: string; icon: typeof Radar }[] = [
 export function MapView() {
   const { place, units, ready } = usePreferences();
   const [layer, setLayer] = useState<MapLayer>('radar');
-  const [basemap, setBasemap, basemapReady] = usePersistentState<BasemapId>('skycast:v2:basemap', 'voyager');
+  const [storedBasemap, setBasemap, basemapReady] = usePersistentState<BasemapId>('skycast:v2:basemap', DEFAULT_BASEMAP);
+  const basemap = validBasemap(storedBasemap);
 
   return (
     <>
-      <PageHeader title="Weather Maps" description="A live world map with RainViewer radar and current conditions from Open-Meteo. Switch between map, streets, satellite, terrain and dark styles." />
+      <PageHeader title="Weather Maps" description="A live world map with RainViewer radar and current conditions from Open-Meteo. Switch between map, streets, satellite, terrain, light and dark styles." />
       <div role="radiogroup" aria-label="Map layer" className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         {LAYERS.map((l) => {
           const active = l.value === layer;
