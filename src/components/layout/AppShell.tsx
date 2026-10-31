@@ -1,0 +1,242 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { AnimatePresence, motion } from 'motion/react';
+import { Monitor, Moon, MoreHorizontal, Sparkles, Sun } from 'lucide-react';
+import { Modal } from '@/components/ui/Modal';
+import { Segmented } from '@/components/ui/Segmented';
+import { SceneBackdrop } from '@/components/weather/SceneBackdrop';
+import { describeCondition, glassMood } from '@/lib/weather/conditions';
+import type { ThemePreference } from '@/lib/types';
+import { usePreferences } from '@/providers/PreferencesProvider';
+import { useWeatherReport } from '@/providers/WeatherProvider';
+import { MOBILE_MORE, MOBILE_PRIMARY, NAV_ITEMS, isActive } from './nav';
+import { GlassPointer } from './GlassPointer';
+import { SearchBar } from './SearchBar';
+
+function Logo({ compact = false }: { compact?: boolean }) {
+  return (
+    <Link href="/" className="group flex items-center gap-2.5 rounded-xl" aria-label="Skycast overview">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo.svg" alt="" width={32} height={32} className="size-8 rounded-[10px] shadow-sm transition-transform group-hover:scale-105" />
+      {!compact && (
+        <span className="leading-none">
+          <span className="block text-[17px] font-semibold tracking-tight">Skycast</span>
+          <span className="mt-0.5 block text-[11px] font-medium text-ink-3">Weather intelligence</span>
+        </span>
+      )}
+    </Link>
+  );
+}
+
+export function ThemeSwitcher({ size = 'md' }: { size?: 'sm' | 'md' }) {
+  const { theme, setTheme } = usePreferences();
+  const icon = (Icon: typeof Sun, label: string) => (
+    <span className="flex items-center gap-1.5">
+      <Icon className="size-3.5" aria-hidden />
+      <span className={size === 'sm' ? 'sr-only' : ''}>{label}</span>
+    </span>
+  );
+  return (
+    <Segmented<ThemePreference>
+      label="Theme"
+      size="sm"
+      value={theme}
+      onChange={setTheme}
+      options={[
+        { value: 'light', label: icon(Sun, 'Light') },
+        { value: 'dark', label: icon(Moon, 'Dark') },
+        { value: 'system', label: icon(Monitor, 'Auto') },
+      ]}
+    />
+  );
+}
+
+function UnitsSwitcher() {
+  const { units, setUnits } = usePreferences();
+  return (
+    <Segmented
+      label="Temperature unit"
+      size="sm"
+      value={units}
+      onChange={setUnits}
+      options={[
+        { value: 'metric', label: '°C' },
+        { value: 'imperial', label: '°F' },
+      ]}
+    />
+  );
+}
+
+function Sidebar({ pathname }: { pathname: string }) {
+  return (
+    <aside className="panel-strong fixed inset-y-3 left-3 z-30 hidden w-60 flex-col rounded-[1.75rem] px-3 py-5 lg:flex">
+      <div className="px-2">
+        <Logo />
+      </div>
+      <nav aria-label="Main" className="mt-9 flex-1">
+        <ul className="space-y-1">
+          {NAV_ITEMS.map((item) => {
+            const active = isActive(pathname, item.href);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  aria-current={active ? 'page' : undefined}
+                  className={`group relative flex h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors ${active ? 'text-ink' : 'text-ink-2 hover:text-ink'}`}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="nav-active"
+                      className="glass-pill absolute inset-0 rounded-xl"
+                      transition={{ type: 'spring', stiffness: 420, damping: 36 }}
+                    />
+                  )}
+                  <item.icon className="relative size-[18px] transition-transform group-hover:scale-110" strokeWidth={active ? 2.2 : 1.8} aria-hidden />
+                  <span className="relative">{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+      <div className="space-y-3 border-t border-line px-1 pt-5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-ink-3">Units</span>
+          <UnitsSwitcher />
+        </div>
+        <ThemeSwitcher size="sm" />
+      </div>
+    </aside>
+  );
+}
+
+function MobileNav({ pathname }: { pathname: string }) {
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreActive = MOBILE_MORE.some((item) => isActive(pathname, item.href));
+  const tab = (active: boolean) =>
+    `relative flex h-14 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${active ? 'text-ink' : 'text-ink-3'}`;
+
+  return (
+    <>
+      <nav
+        aria-label="Main"
+        className="panel-strong fixed inset-x-3 bottom-3 z-30 flex rounded-[1.4rem] px-1 shadow-2xl lg:hidden"
+        style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        {MOBILE_PRIMARY.map((item) => {
+          const active = isActive(pathname, item.href);
+          return (
+            <Link key={item.href} href={item.href} aria-current={active ? 'page' : undefined} className={tab(active)}>
+              {active && (
+                <motion.span layoutId="tab-active" className="glass-pill absolute inset-x-1.5 inset-y-1.5 rounded-2xl" transition={{ type: 'spring', stiffness: 420, damping: 36 }} />
+              )}
+              <item.icon className="relative size-5" strokeWidth={active ? 2.2 : 1.8} aria-hidden />
+              <span className="relative">{item.short}</span>
+            </Link>
+          );
+        })}
+        <button type="button" onClick={() => setMoreOpen(true)} className={tab(moreActive)} aria-haspopup="dialog">
+          {moreActive && <motion.span layoutId="tab-active" className="glass-pill absolute inset-x-1.5 inset-y-1.5 rounded-2xl" />}
+          <MoreHorizontal className="relative size-5" aria-hidden />
+          <span className="relative">More</span>
+        </button>
+      </nav>
+
+      <Modal open={moreOpen} onClose={() => setMoreOpen(false)} title="More" variant="sheet">
+        <ul className="space-y-1">
+          {MOBILE_MORE.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                onClick={() => setMoreOpen(false)}
+                aria-current={isActive(pathname, item.href) ? 'page' : undefined}
+                className={`flex h-12 items-center gap-3 rounded-xl px-3 text-[15px] font-medium ${isActive(pathname, item.href) ? 'glass-pill' : 'hover:bg-ink/[0.06]'}`}
+              >
+                <item.icon className="size-5 text-ink-2" aria-hidden />
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
+          <UnitsSwitcher />
+          <ThemeSwitcher />
+        </div>
+      </Modal>
+    </>
+  );
+}
+
+function AskAiButton({ pathname }: { pathname: string }) {
+  const hidden = pathname.startsWith('/ai') || pathname.startsWith('/maps');
+  return (
+    <AnimatePresence>
+      {!hidden && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 12 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+          className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-30 lg:bottom-8 lg:right-8"
+        >
+          <Link href="/ai" className="panel-strong glass-interactive flex h-12 items-center gap-2 rounded-full pl-1.5 pr-1.5 text-sm font-semibold shadow-2xl sm:pr-4" aria-label="Ask the AI weather assistant">
+            <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-sky-400 via-indigo-500 to-fuchsia-500 text-white shadow-lg shadow-indigo-500/30">
+              <Sparkles className="size-4" aria-hidden />
+            </span>
+            <span className="hidden sm:inline">Ask AI</span>
+          </Link>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const { report } = useWeatherReport();
+  const scene = report ? describeCondition(report.current.weatherCode, report.current.isDay).scene : 'clear-day';
+  const [scrolled, setScrolled] = useState(false);
+
+  // Glass tint follows the weather: sunny, rain, night…
+  useEffect(() => {
+    document.documentElement.dataset.weather = glassMood(scene);
+  }, [scene]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <>
+      <SceneBackdrop scene={scene} />
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-canvas">
+        Skip to content
+      </a>
+      <GlassPointer />
+      <Sidebar pathname={pathname} />
+      <div className="lg:pl-[16.5rem]">
+        <header className="topbar sticky top-0 z-20" data-scrolled={scrolled}>
+          <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6 lg:px-8 lg:py-4">
+            <div className="lg:hidden">
+              <Logo compact />
+            </div>
+            <div className="min-w-0 flex-1 lg:max-w-md">
+              <SearchBar />
+            </div>
+          </div>
+        </header>
+        <main id="main" className="mx-auto max-w-6xl px-4 pb-32 pt-1 sm:px-6 lg:px-8 lg:pb-16">
+          {children}
+        </main>
+      </div>
+      <AskAiButton pathname={pathname} />
+      <MobileNav pathname={pathname} />
+    </>
+  );
+}

@@ -7,6 +7,7 @@ import type { Place, WeatherReport } from '@/lib/types';
 const REFRESH_MS = 10 * 60 * 1000;
 
 interface State {
+  placeId: string | null;
   report: WeatherReport | null;
   error: string | null;
   loading: boolean;
@@ -14,7 +15,7 @@ interface State {
 }
 
 export function useWeather(place: Place | null) {
-  const [state, setState] = useState<State>({ report: null, error: null, loading: false, updatedAt: null });
+  const [state, setState] = useState<State>({ placeId: null, report: null, error: null, loading: false, updatedAt: null });
   const controllerRef = useRef<AbortController | null>(null);
 
   const load = useCallback(async () => {
@@ -23,17 +24,14 @@ export function useWeather(place: Place | null) {
     const controller = new AbortController();
     controllerRef.current = controller;
 
-    setState((s) => ({ ...s, loading: true, error: null }));
+    // A different place must never show the previous place's numbers.
+    setState((s) => (s.placeId === place.id ? { ...s, loading: true, error: null } : { placeId: place.id, report: null, error: null, loading: true, updatedAt: null }));
     try {
       const report = await getWeather(place, controller.signal);
-      setState({ report, error: null, loading: false, updatedAt: Date.now() });
+      setState({ placeId: place.id, report, error: null, loading: false, updatedAt: Date.now() });
     } catch (error) {
       if (controller.signal.aborted) return;
-      setState((s) => ({
-        ...s,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Something went wrong.',
-      }));
+      setState((s) => ({ ...s, loading: false, error: error instanceof Error ? error.message : 'Something went wrong.' }));
     }
   }, [place]);
 
@@ -42,14 +40,21 @@ export function useWeather(place: Place | null) {
     return () => controllerRef.current?.abort();
   }, [load]);
 
-  // Refresh periodically, but only while the tab is visible.
+  // Refresh periodically, and when the tab becomes visible after being stale.
   useEffect(() => {
     if (!place) return;
     const id = window.setInterval(() => {
       if (document.visibilityState === 'visible') load();
     }, REFRESH_MS);
-    return () => window.clearInterval(id);
-  }, [place, load]);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && state.updatedAt && Date.now() - state.updatedAt > REFRESH_MS) load();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [place, load, state.updatedAt]);
 
-  return { ...state, refresh: load };
+  return { report: state.report, error: state.error, loading: state.loading, updatedAt: state.updatedAt, refresh: load };
 }

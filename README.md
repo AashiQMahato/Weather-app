@@ -1,99 +1,119 @@
-# Skycast
+# Skycast: weather intelligence
 
-A Nepal-focused weather dashboard built with Next.js 15, React 19 and Tailwind CSS v4.
+A Nepal-focused weather platform built with Next.js 15, React 19, Tailwind CSS v4, Motion and Groq.
+It combines live forecasts, radar, air quality and an AI analyst and assistant that explain the data
+without inventing it.
 
-Weather data comes from [Open-Meteo](https://open-meteo.com/). It's free and needs **no API key**, so the app
-deploys to Vercel with zero configuration.
+## What's inside
 
-## Focus on Nepal
+| Page | Highlights |
+| --- | --- |
+| **Overview** | Animated weather scenes (sun rays, drifting clouds, rain, lightning, snow, fog, stars), a hero with an animated temperature, an AI analyst, a 24-hour chart, nine metric cards with 24-hour detail charts, an alert center, a 7-day forecast, sun path, and Across Nepal |
+| **Forecast** | 48-hour chart (temperature, rain, wind), 7 or 14 days with expandable details, daily highs, sun path |
+| **Weather Maps** | Leaflet map with RainViewer radar playback, plus temperature, wind, cloud and precipitation layers sampled live from Open-Meteo |
+| **AI Weather** | Streaming assistant that can look up other places, a full analyst briefing, risk insights and lifestyle recommendations |
+| **Air Quality** | US EPA AQI gauge, 24-hour AQI, health guidance, and six pollutants compared with WHO 2021 guidelines |
+| **Saved Locations** | Live local weather and time for each place, and side-by-side comparison with an AI verdict for an activity |
+| **Settings** | °C/°F (metric/imperial), 12/24-hour clock, light, dark or auto theme, data controls, AI status, data sources |
 
-- Opens on Kathmandu, with Kathmandu, Pokhara and Lalitpur as saved places
-- "Across Nepal" panel: live temperature for 12 cities from Dhangadhi to Biratnagar, in a single request
-- Search ranks places in Nepal first, then matches from the rest of the world
-- Nepali (Devanagari) place names next to English ones, e.g. Kathmandu काठमाडौं
-- Times are shown in the place's local time (Asia/Kathmandu for Nepal)
+Also included: search with autocomplete (Nepal first, with Devanagari names), current location, recent searches,
+weather sharing (Web Share API or a copied link), skeleton loading, empty and error states, keyboard shortcuts
+(`/` focuses search), and reduced-motion support.
 
-## Features
+## Design: Liquid Glass
 
-- Current conditions with a background that matches the sky (clear, night, clouds, rain, storm, snow, fog)
-- 24-hour temperature chart and hourly strip with chance of rain
-- 10-day forecast with temperature range bars on a shared scale
-- Wind, humidity and dew point, UV index, sunrise and sunset, precipitation, visibility, pressure and cloud cover
-- Air quality (US AQI, PM2.5, PM10, ozone, NO₂)
-- Plain-language tips (rain soon, high UV, strong gusts, poor air, big temperature swings)
-- City search with keyboard navigation, plus "use my location"
-- Saved places, °C/°F toggle and last location, all remembered in the browser
-- Refreshes every 10 minutes while the tab is visible
-- Accessible: labelled controls, visible focus rings, reduced-motion support
+Skycast's visual identity is a Liquid Glass-inspired system defined once in `src/app/globals.css`:
+
+| Tier | Class | Used for |
+| --- | --- | --- |
+| Hero | `.glass-hero` | The weather hero: lightest frost so the sky shows through |
+| 1 | `.glass-1` | Tiles inside panels: tint and edge only, no blur of its own (cheap) |
+| 2 | `.panel` | Cards and panels: frosted glass with a specular edge and an inner highlight |
+| 3 | `.panel-strong` | Floating chrome (sidebar, tab bar, modals, popovers, toasts, map overlays): dense frost |
+| – | `.glass-control`, `.glass-pill` | Inputs, icon buttons, and the lens-like selected state for navigation |
+
+- **Weather-responsive.** `html[data-weather]` (sunny, rain, cloudy, night, storm, snow, fog) retunes the tint, frost,
+  edge light and reflection color for both themes: warm gold for sun, deeper cool frost for rain, navy with
+  moonlight for night.
+- **Light that moves.** On desktop, one throttled pointer listener (`GlassPointer`) moves each surface's
+  reflection toward the cursor. Interactive cards lift, brighten and run a slow edge highlight on hover. The top
+  bar frosts once content scrolls beneath it.
+- **Atmosphere.** Weather gradients, drifting ambient light orbs, cloud illustrations, rain, snow, fog and stars,
+  plus a static grain texture. Effects animate only `transform` and `opacity`.
+- **Guardrails.** Blur is limited to tiers 2 and 3, and tiles never blur. Browsers without `backdrop-filter` get
+  denser fallbacks, forced-colors mode drops translucency, and `prefers-reduced-motion` stops all motion.
 
 ## Getting started
 
 ```bash
 npm install
+cp .env.example .env.local   # add GROQ_API_KEY to enable AI
 npm run dev
 ```
 
-Then open http://localhost:3000.
+| Script | |
+| --- | --- |
+| `npm run dev` | Dev server |
+| `npm run build` / `npm start` | Production build and server |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript |
 
-> After pulling new changes, run `npm install` again and hard-refresh the browser (Ctrl+Shift+R).
-> If you see requests to old routes such as `/api/weather/current`, delete the `.next` folder and restart.
+## Deploy on Vercel
 
-## Environment variables
+1. Import the repo (framework: Next.js; keep the defaults).
+2. Under **Settings → Environment Variables**, add `GROQ_API_KEY` (and optionally `GROQ_MODEL`).
+3. Deploy. Everything else works without configuration.
 
-None are required. To override an upstream URL (for a self-hosted Open-Meteo instance, for example), copy
-`.env.example` to `.env.local`:
+## How the AI stays honest
 
-```bash
-OPEN_METEO_FORECAST_URL=https://api.open-meteo.com/v1/forecast
-OPEN_METEO_GEOCODING_URL=https://geocoding-api.open-meteo.com/v1/search
-OPEN_METEO_AIR_QUALITY_URL=https://air-quality-api.open-meteo.com/v1/air-quality
-REVERSE_GEOCODING_URL=https://api.bigdatacloud.net/data/reverse-geocode-client
-```
+- **Server-only key.** Groq is called only from `/api/ai/*` route handlers (`src/lib/groq`, guarded by
+  `server-only`). The key is read at runtime and never sent to the browser. The build was checked: it does not
+  appear in any client or server output.
+- **Grounded prompts.** The server fetches weather itself and passes a compact facts object; the model is told
+  to use only those numbers. Client-sent weather data is never trusted, and requests carry only a place and
+  preferences.
+- **Validated output.** Structured responses are parsed with Zod. Any sentence stating a temperature that isn't
+  in the facts is dropped before it reaches the UI.
+- **Facts vs. interpretation.** Risks (heavy rain, UV, wind, humidity, air quality, heat, cold, visibility) are
+  computed from fixed thresholds with their measurements; the AI only explains them. They are labeled as model
+  insights, never as official warnings.
+- **Graceful fallback.** If the key is missing, rejected or Groq is down, the analyst and recommendations switch
+  to a labeled rule-based summary, and the assistant explains that it is offline.
+- **Model check.** `GROQ_MODEL` is verified against `models.list()` and falls back to a supported model if it
+  isn't available.
+- **Abuse limits.** Zod request validation, body size caps, a 500-character question limit, timeouts, and
+  per-IP rate limits (insights 12/min, chat 15/min, compare 8/min). The limiter is in memory, so each serverless
+  instance counts separately; use Upstash Redis or similar for a strict global limit.
 
-These are server-only variables. The browser calls the app's own API routes, and those routes call Open-Meteo:
+## Data sources and limits
 
-| Route                                   | Returns                                      |
-| --------------------------------------- | -------------------------------------------- |
-| `GET /api/weather?lat=27.70&lon=85.32`  | Current, 24-hour, 10-day and air quality data |
-| `GET /api/places?q=pokhara`             | Search results, Nepal first                  |
-| `GET /api/places/reverse?lat=..&lon=..` | Place name for coordinates                   |
-| `GET /api/nepal`                        | Current conditions for 12 Nepali cities      |
+| Data | Provider | Notes |
+| --- | --- | --- |
+| Forecast, geocoding, air quality | [Open-Meteo](https://open-meteo.com/) | Free for non-commercial use (about 10k calls/day), no key. Responses cached 10 min. Commercial use needs their paid plan |
+| Radar | [RainViewer](https://www.rainviewer.com/api.html) | Free public tiles, attribution required, native zoom capped at 7 |
+| Base map | OpenStreetMap / [CARTO](https://carto.com/attributions) | Free with attribution for light traffic; heavy traffic needs a CARTO or MapTiler plan |
+| Official alerts | [US National Weather Service](https://www.weather.gov/documentation/services-web-api) | United States only. Nepal's DHM has no public alert API, so Nepal shows a link to DHM instead of alerts |
+| AI | [Groq](https://console.groq.com/docs) | Needs your API key; usage counts against your Groq plan |
 
-Responses are cached for 10 minutes on Vercel's edge.
-
-| Script              | What it does                    |
-| ------------------- | ------------------------------- |
-| `npm run dev`       | Start the dev server            |
-| `npm run build`     | Production build                |
-| `npm run start`     | Serve the production build      |
-| `npm run lint`      | ESLint                          |
-| `npm run typecheck` | TypeScript, no emit             |
-
-## Deploy to Vercel
-
-1. Push the repository to GitHub.
-2. In Vercel, choose **Add New → Project** and import the repo.
-3. Keep the detected defaults (framework: Next.js). Environment variables are optional (see above).
-4. Click **Deploy**.
+Temperature, wind and cloud **map layers** are real values sampled on a 7×7 grid over the visible area. Smooth
+raster layers (OpenWeatherMap or Tomorrow.io tiles) require a paid or keyed provider and are not included.
 
 ## Project structure
 
 ```
 src/
-  app/            layout, page, error and 404 pages, app icon
-    api/          weather, places, places/reverse and nepal route handlers
-  components/     UI panels (hero, Across Nepal, hourly, daily, details, air quality, tips, search)
-  hooks/          useWeather (fetch + refresh), usePersistentState (localStorage)
+  app/                   routes (each page is a Server Component exporting metadata) and API handlers
+    api/weather|places|cities|nepal|alerts|map/*|ai/*
+  components/
+    layout/              app shell, sidebar, mobile tab bar, search
+    weather/             hero, scene backdrop, custom SVG glyphs, metric cards, sun path, alert center
+    forecast/  charts/  ai/  maps/  ui/  views/
+  providers/             preferences, shared weather report, AI status, toasts
+  hooks/                 useWeather, useInsights, usePersistentState
   lib/
-    openMeteo.ts  server-side Open-Meteo client (reads the env URLs)
-    api.ts        browser client for the app's /api routes
-    nepal.ts      Nepali cities with Devanagari names
-    conditions.ts WMO weather codes → label, icon, scene
-    format.ts     unit conversion and local-time formatting
-    insights.ts   rule-based weather tips
+    weather/             Open-Meteo client, conditions, formatting, risks, rules, alerts, radar
+    groq/                client and model check, facts, prompts, schemas, insights, chat, compare
+    utils/               rate limit, cache, request validation, responses
 ```
 
-## Credits
-
-Weather data by [Open-Meteo](https://open-meteo.com/) (CC BY 4.0). Reverse geocoding for "use my location" by
-BigDataCloud's free client API.
+See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the architecture plan.
