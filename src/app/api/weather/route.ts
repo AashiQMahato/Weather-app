@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { getWeather } from '@/lib/openMeteo';
-import { fail, failFrom, ok, readCoords } from '@/lib/apiResponse';
+import { getWeather } from '@/lib/weather/openMeteo';
+import { fail, failFrom, ok, readCoords } from '@/lib/utils/apiResponse';
 
 export async function GET(request: NextRequest) {
   const coords = readCoords(request.nextUrl.searchParams);

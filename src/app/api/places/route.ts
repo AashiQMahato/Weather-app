@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { searchPlaces } from '@/lib/openMeteo';
-import { failFrom, ok } from '@/lib/apiResponse';
+import { searchPlaces } from '@/lib/weather/openMeteo';
+import { failFrom, ok } from '@/lib/utils/apiResponse';
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get('q')?.trim() ?? '';

@@ -1,6 +1,6 @@
-import { getCurrentForPlaces } from '@/lib/openMeteo';
-import { NEPAL_CITIES } from '@/lib/nepal';
-import { failFrom, ok } from '@/lib/apiResponse';
+import { getCurrentForPlaces } from '@/lib/weather/openMeteo';
+import { NEPAL_CITIES } from '@/lib/weather/nepal';
+import { failFrom, ok } from '@/lib/utils/apiResponse';
 
 export async function GET() {
   try {
