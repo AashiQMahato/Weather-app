@@ -264,7 +264,7 @@ export function MetricCards({ report }: { report: WeatherReport }) {
             transition={{ duration: 0.5, delay: (i % 3) * 0.05 }}
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.985 }}
-            className="panel group flex min-h-44 flex-col p-4 text-left transition-shadow hover:shadow-xl sm:p-5"
+            className="panel glass-interactive group flex min-h-44 flex-col p-4 text-left sm:p-5"
             aria-label={`${m.title}: ${m.value}. Open details`}
           >
             <span className="flex w-full items-center justify-between">
@@ -293,7 +293,7 @@ export function MetricCards({ report }: { report: WeatherReport }) {
                 ['Low', Math.min(...stats)],
                 ['High', Math.max(...stats)],
               ].map(([label, v]) => (
-                <div key={label as string} className="rounded-2xl bg-ink/[0.05] px-3 py-2.5">
+                <div key={label as string} className="rounded-2xl glass-1 px-3 py-2.5">
                   <p className="text-[11px] font-medium text-ink-3">{label}</p>
                   <p className="tabular text-lg font-semibold">
                     {(v as number).toFixed(open.detail.decimals ?? 0)}

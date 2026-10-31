@@ -16,7 +16,7 @@ interface SegmentedProps<T extends string> {
 export function Segmented<T extends string>({ label, value, options, onChange, size = 'md', className = '' }: SegmentedProps<T>) {
   const id = useId();
   return (
-    <div role="radiogroup" aria-label={label} className={`inline-flex rounded-full border border-line bg-ink/[0.06] p-1 ${className}`}>
+    <div role="radiogroup" aria-label={label} className={`inline-flex rounded-full border border-line glass-1 p-1 ${className}`}>
       {options.map((option) => {
         const active = option.value === value;
         return (

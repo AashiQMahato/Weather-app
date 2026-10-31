@@ -173,14 +173,14 @@ export function Assistant() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-5 sm:px-5" aria-live="polite">
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <span className="grid size-14 place-items-center rounded-2xl bg-ink/[0.06]">
+            <span className="grid size-14 place-items-center rounded-2xl glass-1">
               <MessageCircle className="size-6 text-ink-2" aria-hidden />
             </span>
             <p className="mt-4 text-base font-semibold">Ask anything about the weather</p>
             <p className="mt-1 max-w-sm text-sm text-ink-3">I check live forecasts for {place.name} and any other place you mention.</p>
             <div className="mt-6 flex max-w-lg flex-wrap justify-center gap-2">
               {SUGGESTIONS.slice(0, 6).map((s) => (
-                <button key={s} type="button" disabled={disabled} onClick={() => send(s)} className="rounded-full border border-line bg-ink/[0.03] px-3.5 py-2 text-sm text-ink-2 transition-colors hover:bg-ink/[0.08] hover:text-ink disabled:opacity-50">
+                <button key={s} type="button" disabled={disabled} onClick={() => send(s)} className="rounded-full border border-line glass-1 px-3.5 py-2 text-sm text-ink-2 transition-colors hover:bg-ink/[0.08] hover:text-ink disabled:opacity-50">
                   {s}
                 </button>
               ))}
@@ -197,14 +197,14 @@ export function Assistant() {
                     <>
                       <AiBadge size="sm" />
                       <div className="min-w-0 max-w-[88%] flex-1">
-                        <div className={`rounded-3xl rounded-tl-lg px-4 py-3 text-[15px] leading-relaxed ${m.error ? 'bg-critical/10 text-critical' : 'bg-ink/[0.06] text-ink-2'}`}>
+                        <div className={`rounded-3xl rounded-tl-lg px-4 py-3 text-[15px] leading-relaxed ${m.error ? 'bg-critical/10 text-critical' : 'glass-1 text-ink-2'}`}>
                           {m.error && <TriangleAlert className="mb-1 size-4" aria-hidden />}
                           {m.content ? <RichText text={m.content} /> : <TypingDots />}
                         </div>
                         {m.content && !m.error && !(streaming && m.id === last?.id) && (
                           <div className="mt-1.5 flex flex-wrap items-center gap-2 px-1 text-[11px] text-ink-3">
                             {m.places && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-ink/[0.05] px-2 py-0.5" title="Answer grounded in live forecast data">
+                              <span className="inline-flex items-center gap-1 rounded-full glass-1 px-2 py-0.5" title="Answer grounded in live forecast data">
                                 <Database className="size-3" aria-hidden />
                                 Live data: {m.places.join(', ')}
                               </span>
@@ -239,14 +239,14 @@ export function Assistant() {
           </div>
         )}
         {disabled ? (
-          <p className="rounded-2xl bg-ink/[0.05] px-4 py-3 text-sm text-ink-2">The assistant is offline: {ai.reason ?? 'AI is not configured on this deployment.'}</p>
+          <p className="rounded-2xl glass-1 px-4 py-3 text-sm text-ink-2">The assistant is offline: {ai.reason ?? 'AI is not configured on this deployment.'}</p>
         ) : (
           <form
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
             }}
-            className="flex items-end gap-2 rounded-3xl border border-line bg-ink/[0.03] p-1.5 pl-4 focus-within:border-ink/30"
+            className="flex items-end gap-2 rounded-3xl border border-line glass-1 p-1.5 pl-4 focus-within:border-ink/30"
           >
             <label htmlFor="assistant-input" className="sr-only">
               Ask about the weather

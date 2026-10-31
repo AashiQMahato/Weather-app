@@ -53,20 +53,29 @@ export function WeatherGlyph({ kind, isDay = true, size = 32, animated = false, 
   );
 
   const cloud = (transform = '', dark = false) => (
-    <g className="g-cloud" transform={transform}>
-      <path d={CLOUD} fill={url(dark ? 'cloudDark' : 'cloud')} stroke="var(--cloud-stroke)" strokeWidth={1.2} />
+    // Animations live on the inner group: a CSS transform would replace the SVG transform attribute.
+    <g transform={transform}>
+      <g className="g-cloud">
+        <path d={CLOUD} fill={url(dark ? 'cloudDark' : 'cloud')} stroke="var(--cloud-stroke)" strokeWidth={1.2} />
+      </g>
     </g>
   );
 
   const drops = (xs: number[], y: number, scale = 1) =>
-    xs.map((x, i) => <path key={i} className="g-drop" d={DROP} transform={`translate(${x} ${y}) scale(${scale})`} fill={url('drop')} />);
+    xs.map((x, i) => (
+      <g key={i} transform={`translate(${x} ${y}) scale(${scale})`}>
+        <path className="g-drop" style={{ animationDelay: `${i * 0.45}s` }} d={DROP} fill={url('drop')} />
+      </g>
+    ));
 
   const flakes = (xs: number[], y: number) =>
     xs.map((x, i) => (
-      <g key={i} className="g-drop" transform={`translate(${x} ${y + (i % 2) * 4})`}>
-        {[0, 60, 120].map((deg) => (
-          <line key={deg} x1={0} y1={-3.2} x2={0} y2={3.2} transform={`rotate(${deg})`} stroke="#bfdbfe" strokeWidth={1.8} strokeLinecap="round" />
-        ))}
+      <g key={i} transform={`translate(${x} ${y + (i % 2) * 4})`}>
+        <g className="g-drop" style={{ animationDelay: `${i * 0.45}s` }}>
+          {[0, 60, 120].map((deg) => (
+            <line key={deg} x1={0} y1={-3.2} x2={0} y2={3.2} transform={`rotate(${deg})`} stroke="#bfdbfe" strokeWidth={1.8} strokeLinecap="round" />
+          ))}
+        </g>
       </g>
     ));
 

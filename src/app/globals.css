@@ -32,8 +32,7 @@
   --ink-2: rgb(255 255 255 / 0.8);
   --ink-3: rgb(255 255 255 / 0.64);
   --canvas: #0a1426;
-  --surface: rgb(255 255 255 / 0.075);
-  --surface-strong: rgb(15 23 42 / 0.82);
+  --surface: rgb(255 255 255 / 0.08);
   --line: rgb(255 255 255 / 0.11);
   --accent: #7cc4ff;
   --good: #6ee7b7;
@@ -65,8 +64,7 @@
   --ink-2: #334155;
   --ink-3: #4b5a70;
   --canvas: #f4f7fb;
-  --surface: rgb(255 255 255 / 0.62);
-  --surface-strong: rgb(255 255 255 / 0.94);
+  --surface: rgb(255 255 255 / 0.55);
   --line: rgb(15 23 42 / 0.09);
   --accent: #0b6bcb;
   --good: #047857;
@@ -96,6 +94,7 @@
    light variants keep slate text at AA. */
 [data-theme="dark"] [data-scene="clear-day"], [data-scene="clear-day"] { --scene-from: #1d6fc4; --scene-via: #2a83d6; --scene-to: #0d3466; --glow: rgb(255 214 120 / 0.38); }
 [data-theme="dark"] [data-scene="clear-night"], [data-scene="clear-night"] { --scene-from: #0b1026; --scene-via: #19214a; --scene-to: #05070f; --glow: rgb(165 180 252 / 0.2); }
+[data-theme="dark"] [data-scene="cloudy-night"], [data-scene="cloudy-night"] { --scene-from: #141c33; --scene-via: #1f2a44; --scene-to: #070b16; --glow: rgb(148 163 184 / 0.12); }
 [data-theme="dark"] [data-scene="cloudy"], [data-scene="cloudy"] { --scene-from: #3b4d64; --scene-via: #4a5d76; --scene-to: #1a2331; --glow: rgb(226 232 240 / 0.12); }
 [data-theme="dark"] [data-scene="rain"], [data-scene="rain"] { --scene-from: #24364d; --scene-via: #324d69; --scene-to: #0e1827; --glow: rgb(125 211 252 / 0.14); }
 [data-theme="dark"] [data-scene="storm"], [data-scene="storm"] { --scene-from: #1e1736; --scene-via: #302856; --scene-to: #0a0815; --glow: rgb(196 181 253 / 0.18); }
@@ -104,6 +103,7 @@
 
 [data-theme="light"] [data-scene="clear-day"] { --scene-from: #7dbcff; --scene-via: #c5e1ff; --scene-to: #f3f8ff; --glow: rgb(255 196 80 / 0.5); }
 [data-theme="light"] [data-scene="clear-night"] { --scene-from: #b9c1ee; --scene-via: #dfe3f8; --scene-to: #f5f6fd; --glow: rgb(129 140 248 / 0.28); }
+[data-theme="light"] [data-scene="cloudy-night"] { --scene-from: #b9bfd6; --scene-via: #dde1ee; --scene-to: #f4f5fa; --glow: rgb(165 180 252 / 0.25); }
 [data-theme="light"] [data-scene="cloudy"] { --scene-from: #b7c4d4; --scene-via: #dde4ed; --scene-to: #f4f6f9; --glow: rgb(255 255 255 / 0.5); }
 [data-theme="light"] [data-scene="rain"] { --scene-from: #9fb2c8; --scene-via: #d3dde8; --scene-to: #f1f4f8; --glow: rgb(186 230 253 / 0.45); }
 [data-theme="light"] [data-scene="storm"] { --scene-from: #a9a3c8; --scene-via: #d6d3e8; --scene-to: #f3f2f9; --glow: rgb(196 181 253 / 0.4); }
@@ -137,15 +137,85 @@ body {
   border-radius: 0.5rem;
 }
 
-/* ----------------------------------------------------------------- surfaces */
+/* ----------------------------------------------------------- liquid glass */
+/* Three tiers keep hierarchy clear and blur affordable:
+   glass-1  tint + edge only (no blur), for tiles inside panels
+   .panel   frosted card (tier 2), the default surface
+   .panel-strong  dense frost for floating chrome: nav, modals, popovers
+   Every tier reads its tint, frost and edge light from --g-* tokens that
+   change with theme and with the weather (html[data-weather]). */
+
+:root,
+[data-theme="dark"] {
+  --g-tint: 255 255 255;
+  --g-a1: 0.15;
+  --g-a2: 0.055;
+  --g-blur: 20px;
+  --g-sat: 170%;
+  --g-edge: rgb(255 255 255 / 0.5);
+  --g-edge-soft: rgb(255 255 255 / 0.1);
+  --g-inner: inset 0 1px 0 rgb(255 255 255 / 0.26), inset 0 -1px 0 rgb(255 255 255 / 0.04);
+  --g-shadow: 0 20px 44px -24px rgb(2 6 23 / 0.6);
+  --g-sheen: rgb(255 255 255 / 0.16);
+  --g3-bg: 14 22 42;
+  --g3-a: 0.58;
+  --g1-bg: rgb(255 255 255 / 0.07);
+  --g1-edge: rgb(255 255 255 / 0.1);
+  --g1-inner: inset 0 1px 0 rgb(255 255 255 / 0.1);
+  --orb-a: rgb(255 214 120 / 0.28);
+  --orb-b: rgb(125 211 252 / 0.18);
+  --grain: 0.06;
+}
+
+[data-theme="light"] {
+  --g-tint: 255 255 255;
+  --g-a1: 0.68;
+  --g-a2: 0.4;
+  --g-blur: 22px;
+  --g-sat: 160%;
+  --g-edge: rgb(255 255 255 / 0.95);
+  --g-edge-soft: rgb(255 255 255 / 0.45);
+  --g-inner: inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 -1px 0 rgb(15 23 42 / 0.03);
+  --g-shadow: 0 18px 40px -24px rgb(15 23 42 / 0.3);
+  --g-sheen: rgb(255 255 255 / 0.6);
+  --g3-bg: 255 255 255;
+  --g3-a: 0.76;
+  --g1-bg: rgb(255 255 255 / 0.5);
+  --g1-edge: rgb(255 255 255 / 0.75);
+  --g1-inner: inset 0 1px 0 rgb(255 255 255 / 0.9);
+  --orb-a: rgb(255 196 80 / 0.35);
+  --orb-b: rgb(147 197 253 / 0.35);
+  --grain: 0.035;
+}
+
+/* Weather-responsive glass (dark theme). */
+:root:not([data-theme="light"])[data-weather="sunny"] { --g-tint: 255 244 226; --g-a1: 0.17; --g-a2: 0.065; --g-edge: rgb(255 226 160 / 0.6); --g-sheen: rgb(255 228 170 / 0.2); --orb-a: rgb(255 200 90 / 0.35); --orb-b: rgb(255 170 120 / 0.16); }
+:root:not([data-theme="light"])[data-weather="rain"] { --g-tint: 198 222 255; --g-a1: 0.13; --g-a2: 0.05; --g-blur: 28px; --g-edge: rgb(186 220 255 / 0.45); --g-sheen: rgb(180 215 255 / 0.16); --orb-a: rgb(96 165 250 / 0.22); --orb-b: rgb(56 189 248 / 0.16); }
+:root:not([data-theme="light"])[data-weather="cloudy"] { --g-tint: 238 242 247; --g-a1: 0.12; --g-a2: 0.05; --g-edge: rgb(255 255 255 / 0.36); --g-shadow: 0 16px 36px -24px rgb(2 6 23 / 0.45); --orb-a: rgb(226 232 240 / 0.16); --orb-b: rgb(148 163 184 / 0.16); }
+:root:not([data-theme="light"])[data-weather="night"] { --g-tint: 28 38 80; --g-a1: 0.52; --g-a2: 0.34; --g-blur: 22px; --g-edge: rgb(199 210 254 / 0.34); --g-edge-soft: rgb(199 210 254 / 0.06); --g-sheen: rgb(199 210 254 / 0.1); --g-inner: inset 0 1px 0 rgb(199 210 254 / 0.18), inset 0 -1px 0 rgb(255 255 255 / 0.03); --g3-bg: 10 15 36; --g3-a: 0.7; --g1-bg: rgb(148 163 255 / 0.08); --g1-edge: rgb(199 210 254 / 0.1); --orb-a: rgb(165 180 252 / 0.2); --orb-b: rgb(56 70 160 / 0.3); }
+:root:not([data-theme="light"])[data-weather="storm"] { --g-tint: 58 50 108; --g-a1: 0.44; --g-a2: 0.26; --g-blur: 26px; --g-edge: rgb(196 181 253 / 0.34); --g-sheen: rgb(196 181 253 / 0.12); --g3-bg: 18 14 38; --g3-a: 0.7; --orb-a: rgb(167 139 250 / 0.22); --orb-b: rgb(59 130 246 / 0.14); }
+:root:not([data-theme="light"])[data-weather="snow"] { --g-tint: 240 248 255; --g-a1: 0.17; --g-a2: 0.07; --g-edge: rgb(255 255 255 / 0.6); --g-sheen: rgb(240 249 255 / 0.22); --orb-a: rgb(240 249 255 / 0.25); --orb-b: rgb(186 230 253 / 0.2); }
+:root:not([data-theme="light"])[data-weather="fog"] { --g-tint: 236 240 244; --g-a1: 0.14; --g-a2: 0.06; --g-blur: 14px; --g-edge: rgb(255 255 255 / 0.4); --orb-a: rgb(241 245 249 / 0.18); --orb-b: rgb(203 213 225 / 0.14); }
+
+/* Weather-responsive glass (light theme). */
+[data-theme="light"][data-weather="sunny"] { --g-tint: 255 251 242; --g-a1: 0.7; --g-a2: 0.42; --g-edge: rgb(255 226 160 / 0.95); --g-sheen: rgb(255 240 200 / 0.7); --orb-a: rgb(255 190 70 / 0.4); --orb-b: rgb(255 160 110 / 0.2); }
+[data-theme="light"][data-weather="rain"] { --g-tint: 241 247 255; --g-a1: 0.6; --g-a2: 0.34; --g-blur: 28px; --g-edge: rgb(219 234 254 / 0.95); --orb-a: rgb(147 197 253 / 0.4); --orb-b: rgb(125 211 252 / 0.3); }
+[data-theme="light"][data-weather="cloudy"] { --g-tint: 250 251 253; --g-a1: 0.62; --g-a2: 0.38; --g-edge: rgb(255 255 255 / 0.9); --orb-a: rgb(255 255 255 / 0.5); --orb-b: rgb(203 213 225 / 0.35); }
+[data-theme="light"][data-weather="night"] { --g-tint: 240 242 255; --g-a1: 0.66; --g-a2: 0.4; --g-edge: rgb(224 231 255 / 0.95); --g-edge-soft: rgb(224 231 255 / 0.4); --g-sheen: rgb(224 231 255 / 0.6); --g-inner: inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 -1px 0 rgb(15 23 42 / 0.03); --g3-bg: 255 255 255; --g3-a: 0.78; --g1-bg: rgb(255 255 255 / 0.5); --g1-edge: rgb(255 255 255 / 0.75); --orb-a: rgb(165 180 252 / 0.4); --orb-b: rgb(129 140 248 / 0.25); }
+[data-theme="light"][data-weather="storm"] { --g-tint: 245 243 255; --g-a1: 0.64; --g-a2: 0.38; --g-edge: rgb(237 233 254 / 0.95); --g-edge-soft: rgb(237 233 254 / 0.4); --g-sheen: rgb(237 233 254 / 0.6); --g-inner: inset 0 1px 0 rgb(255 255 255 / 0.9); --g3-bg: 255 255 255; --g3-a: 0.78; --orb-a: rgb(196 181 253 / 0.4); --orb-b: rgb(147 197 253 / 0.3); }
+[data-theme="light"][data-weather="snow"] { --g-tint: 255 255 255; --g-a1: 0.7; --g-a2: 0.44; --orb-a: rgb(255 255 255 / 0.6); --orb-b: rgb(186 230 253 / 0.4); }
+[data-theme="light"][data-weather="fog"] { --g-tint: 252 252 253; --g-a1: 0.62; --g-a2: 0.4; --g-blur: 14px; --orb-a: rgb(255 255 255 / 0.5); --orb-b: rgb(226 232 240 / 0.4); }
+
+@property --glass-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 150deg;
+}
 
 .sky {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(70rem 42rem at 82% -12%, var(--glow), transparent 62%),
-    linear-gradient(180deg, var(--scene-from) 0%, var(--scene-via) 46%, var(--scene-to) 100%);
-  transition: background 900ms ease;
+  background: linear-gradient(180deg, var(--scene-from) 0%, var(--scene-via) 46%, var(--scene-to) 100%);
 }
 
 /* Fades the sky into the canvas below the fold so long pages stay calm. */
@@ -156,20 +226,154 @@ body {
   background: linear-gradient(180deg, transparent 55%, color-mix(in oklab, var(--canvas) 55%, transparent) 100%);
 }
 
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 1.25rem;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
+/* Static film grain: gives flat gradients a tactile, printed depth. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--grain);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-.panel-strong {
-  background: var(--surface-strong);
-  border: 1px solid var(--line);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
+@layer components {
+  .panel,
+  .panel-strong,
+  .glass-hero {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid transparent;
+    border-radius: 1.5rem;
+    transition: background 700ms ease, box-shadow 300ms ease, transform 300ms var(--ease-out-soft);
+  }
+
+  /* Tier 2: frosted card. */
+  .panel {
+    background: linear-gradient(155deg, rgb(var(--g-tint) / var(--g-a1)) 0%, rgb(var(--g-tint) / var(--g-a2)) 100%);
+    box-shadow: var(--g-inner), var(--g-shadow);
+    backdrop-filter: blur(var(--g-blur)) saturate(var(--g-sat));
+    -webkit-backdrop-filter: blur(var(--g-blur)) saturate(var(--g-sat));
+  }
+
+  /* Tier 3: dense floating chrome. */
+  .panel-strong {
+    background: linear-gradient(160deg, rgb(var(--g3-bg) / calc(var(--g3-a) - 0.06)) 0%, rgb(var(--g3-bg) / calc(var(--g3-a) + 0.08)) 100%);
+    box-shadow: var(--g-inner), 0 28px 60px -28px rgb(2 6 23 / 0.6);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+  }
+
+  /* Hero: the lightest frost so the sky stays the star. */
+  .glass-hero {
+    border-radius: 2rem;
+    background: linear-gradient(160deg, rgb(var(--g-tint) / calc(var(--g-a1) * 0.75)) 0%, rgb(var(--g-tint) / calc(var(--g-a2) * 0.35)) 70%);
+    box-shadow: var(--g-inner), var(--g-shadow);
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+  }
+
+  /* Specular edge: brighter where light hits the top-left, fading around the rim. */
+  .panel::before,
+  .panel-strong::before,
+  .glass-hero::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(var(--glass-angle), var(--g-edge) 0%, var(--g-edge-soft) 28%, transparent 50%, var(--g-edge-soft) 78%, color-mix(in oklab, var(--g-edge) 60%, transparent) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
+
+  /* Soft reflection; follows the pointer on desktop (see GlassPointer). */
+  .panel::after,
+  .panel-strong::after,
+  .glass-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(520px circle at var(--mx, 18%) var(--my, -10%), var(--g-sheen), transparent 45%);
+    opacity: 0.7;
+    transition: opacity 400ms ease;
+    pointer-events: none;
+  }
+
+  /* Tier 1: translucent tile inside a panel. No blur of its own. */
+  .glass-1 {
+    background: var(--g1-bg);
+    box-shadow: var(--g1-inner), inset 0 0 0 1px var(--g1-edge);
+  }
+
+  /* Selected state: a small lens of brighter glass. */
+  .glass-pill {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.08));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.14), 0 6px 18px -8px rgb(2 6 23 / 0.45);
+  }
+  [data-theme="light"] .glass-pill {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.7));
+    box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgb(15 23 42 / 0.06), 0 6px 18px -8px rgb(15 23 42 / 0.25);
+  }
+
+  /* Glass controls: icon buttons, inputs, chips. Light frost, crisp edge. */
+  .glass-control {
+    background: linear-gradient(180deg, rgb(var(--g-tint) / calc(var(--g-a1) + 0.03)), rgb(var(--g-tint) / var(--g-a2)));
+    box-shadow: var(--g-inner), inset 0 0 0 1px var(--g-edge-soft), 0 6px 16px -10px rgb(2 6 23 / 0.4);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    transition: background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+  }
+  .glass-control:hover {
+    background: linear-gradient(180deg, rgb(var(--g-tint) / calc(var(--g-a1) + 0.1)), rgb(var(--g-tint) / calc(var(--g-a2) + 0.05)));
+  }
+}
+
+/* Interactive glass: lift, brighter reflection, slowly travelling edge light. */
+@media (hover: hover) {
+  .glass-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--g-inner), 0 26px 50px -24px rgb(2 6 23 / 0.6);
+  }
+  .glass-interactive:hover::after {
+    opacity: 1;
+  }
+  .glass-interactive:hover::before {
+    animation: glass-edge 7s linear infinite;
+  }
+}
+
+@keyframes glass-edge {
+  from { --glass-angle: 150deg; }
+  to { --glass-angle: 510deg; }
+}
+
+/* Top bar gains glass once content scrolls beneath it. */
+.topbar {
+  transition: background 300ms ease, box-shadow 300ms ease, backdrop-filter 300ms ease;
+}
+.topbar[data-scrolled="true"] {
+  background: linear-gradient(180deg, rgb(var(--g-tint) / var(--g-a1)), rgb(var(--g-tint) / var(--g-a2)));
+  box-shadow: inset 0 -1px 0 var(--g-edge-soft), 0 12px 30px -24px rgb(2 6 23 / 0.6);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+}
+
+/* Browsers without backdrop-filter get denser surfaces so text stays readable. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .panel { background: rgb(var(--g3-bg) / 0.85); }
+  .glass-hero { background: rgb(var(--g3-bg) / 0.6); }
+}
+
+/* Windows high contrast: drop translucency entirely. */
+@media (forced-colors: active) {
+  .panel, .panel-strong, .glass-hero, .glass-control { background: Canvas; border: 1px solid CanvasText; backdrop-filter: none; }
+  .panel::before, .panel::after, .panel-strong::before, .panel-strong::after, .glass-hero::before, .glass-hero::after { display: none; }
 }
 
 .no-scrollbar {
@@ -219,6 +423,10 @@ body {
   95.5% { opacity: 0.4; }
   97% { opacity: 0; }
 }
+@keyframes orb {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4%, 3%, 0) scale(1.08); }
+}
 @keyframes spin-slow {
   to { transform: rotate(360deg); }
 }
@@ -250,8 +458,6 @@ body {
 .glyph-animated .g-sun { transform-box: fill-box; transform-origin: center; animation: spin-slow 40s linear infinite; }
 .glyph-animated .g-cloud { animation: float 7s ease-in-out infinite; }
 .glyph-animated .g-drop { animation: glyph-drop 1.4s ease-in infinite; }
-.glyph-animated .g-drop:nth-of-type(2) { animation-delay: 0.45s; }
-.glyph-animated .g-drop:nth-of-type(3) { animation-delay: 0.9s; }
 .glyph-animated .g-bolt { animation: glyph-bolt 4s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -277,4 +483,43 @@ body {
 .grid-label {
   background: none !important;
   border: none !important;
+}
+
+/* Leaflet chrome as glass. */
+.leaflet-touch .leaflet-bar,
+.leaflet-bar {
+  border: none !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+  box-shadow: var(--g-inner), inset 0 0 0 1px var(--g-edge-soft), 0 10px 24px -12px rgb(2 6 23 / 0.5) !important;
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+}
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background: rgb(var(--g3-bg) / 0.55) !important;
+  color: var(--ink) !important;
+  border-bottom-color: var(--line) !important;
+}
+.leaflet-container .leaflet-control-attribution {
+  background: rgb(var(--g3-bg) / 0.55);
+  color: var(--ink-3);
+  border-top-left-radius: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.leaflet-container .leaflet-control-attribution a {
+  color: var(--ink-2);
+}
+.leaflet-tooltip {
+  background: rgb(var(--g3-bg) / 0.72) !important;
+  color: var(--ink) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  box-shadow: var(--g-inner), inset 0 0 0 1px var(--g-edge-soft), 0 8px 20px -10px rgb(2 6 23 / 0.5) !important;
+  backdrop-filter: blur(14px);
+  font-weight: 600;
+}
+.leaflet-tooltip-top::before {
+  border-top-color: rgb(var(--g3-bg) / 0.72) !important;
 }

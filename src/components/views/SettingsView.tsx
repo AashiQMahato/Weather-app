@@ -14,7 +14,7 @@ function Row({ icon: Icon, title, description, children }: { icon: typeof Clock;
   return (
     <div className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-3">
-        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-ink/[0.06] text-ink-2">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl glass-1 text-ink-2">
           <Icon className="size-4" aria-hidden />
         </span>
         <div>
@@ -73,7 +73,7 @@ export function SettingsView() {
             </GhostButton>
           </Row>
           <Row icon={Bot} title="AI features" description={ai.checked ? (ai.enabled ? `Enabled · model ${ai.model}` : `Unavailable · ${ai.reason ?? 'not configured'}`) : 'Checking…'}>
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${ai.enabled ? 'bg-good/15 text-good' : 'bg-ink/[0.06] text-ink-3'}`}>
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${ai.enabled ? 'bg-good/15 text-good' : 'glass-1 text-ink-3'}`}>
               <span className={`size-1.5 rounded-full ${ai.enabled ? 'bg-good' : 'bg-ink-3'}`} aria-hidden />
               {ai.enabled ? 'Online' : 'Offline'}
             </span>
@@ -90,7 +90,7 @@ export function SettingsView() {
               ['AI', 'Groq, running open models. AI text interprets the data above and can be wrong.', 'https://groq.com/'],
               ['Place names', 'Open-Meteo geocoding (GeoNames) and BigDataCloud reverse geocoding.', 'https://www.geonames.org/'],
             ].map(([title, body, href]) => (
-              <li key={title} className="flex gap-3 rounded-2xl bg-ink/[0.04] p-4">
+              <li key={title} className="flex gap-3 rounded-2xl glass-1 p-4">
                 <Database className="mt-0.5 size-4 shrink-0 text-ink-3" aria-hidden />
                 <div>
                   <a href={href} target="_blank" rel="noreferrer" className="font-semibold hover:underline">

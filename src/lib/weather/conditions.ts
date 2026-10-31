@@ -1,5 +1,8 @@
 /** Visual mood of the page, driven by current conditions. */
-export type Scene = 'clear-day' | 'clear-night' | 'cloudy' | 'rain' | 'storm' | 'snow' | 'fog';
+export type Scene = 'clear-day' | 'clear-night' | 'cloudy' | 'cloudy-night' | 'rain' | 'storm' | 'snow' | 'fog';
+
+/** Drives the weather-responsive glass tint (html[data-weather]). */
+export type GlassMood = 'sunny' | 'night' | 'cloudy' | 'rain' | 'storm' | 'snow' | 'fog';
 
 /** Which illustration to draw. Day and night variants are resolved separately. */
 export type GlyphKind =
@@ -57,8 +60,22 @@ const UNKNOWN: Condition = { label: 'Unknown', glyph: 'cloudy', scene: 'cloudy' 
 
 export function describeCondition(code: number, isDay = true) {
   const condition = CONDITIONS[code] ?? UNKNOWN;
-  const scene: Scene = condition.scene === 'clear-day' && !isDay ? 'clear-night' : condition.scene;
+  let scene: Scene = condition.scene;
+  if (!isDay && scene === 'clear-day') scene = 'clear-night';
+  if (!isDay && scene === 'cloudy') scene = 'cloudy-night';
   return { label: condition.label, glyph: condition.glyph, scene, isDay };
+}
+
+export function glassMood(scene: Scene): GlassMood {
+  switch (scene) {
+    case 'clear-day':
+      return 'sunny';
+    case 'clear-night':
+    case 'cloudy-night':
+      return 'night';
+    default:
+      return scene;
+  }
 }
 
 export function isWet(code: number) {

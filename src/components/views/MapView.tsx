@@ -38,7 +38,7 @@ export function MapView() {
               role="radio"
               aria-checked={active}
               onClick={() => setLayer(l.value)}
-              className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors ${active ? 'border-ink bg-ink text-canvas' : 'border-line bg-surface text-ink-2 backdrop-blur-xl hover:text-ink'}`}
+              className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors ${active ? 'border-ink bg-ink text-canvas' : 'glass-control text-ink-2 hover:text-ink'}`}
             >
               <l.icon className="size-4" aria-hidden />
               {l.label}

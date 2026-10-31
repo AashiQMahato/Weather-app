@@ -13,7 +13,7 @@ export function AiBadge({ thinking = false, size = 'md' }: { thinking?: boolean;
 
 export function SourceChip({ source, model }: { source: 'ai' | 'rules'; model: string | null }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-ink/[0.06] px-2 py-0.5 text-[11px] font-medium text-ink-3" title={model ?? undefined}>
+    <span className="inline-flex items-center gap-1 rounded-full glass-1 px-2 py-0.5 text-[11px] font-medium text-ink-3" title={model ?? undefined}>
       {source === 'ai' ? `AI · ${model?.split('/').pop() ?? 'Groq'}` : 'Automatic summary'}
     </span>
   );

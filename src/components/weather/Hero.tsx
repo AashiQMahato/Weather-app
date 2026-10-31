@@ -66,7 +66,7 @@ export function Hero({ report, loading, updatedAt, onRefresh }: HeroProps) {
   const minutesAgo = updatedAt ? Math.max(0, Math.round((Date.now() - updatedAt) / 60_000)) : null;
 
   return (
-    <section aria-labelledby="hero-place" className="relative pb-2 pt-4 sm:pt-8">
+    <section aria-labelledby="hero-place" className="glass-hero mt-3 overflow-hidden p-5 sm:mt-6 sm:p-8 lg:p-10">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <button
@@ -96,7 +96,7 @@ export function Hero({ report, loading, updatedAt, onRefresh }: HeroProps) {
             onClick={toggleSaved.bind(null, place)}
             aria-pressed={saved}
             aria-label={saved ? `Remove ${place.name} from saved locations` : `Save ${place.name}`}
-            className="grid size-10 place-items-center rounded-full border border-line bg-surface backdrop-blur-xl transition-colors hover:bg-ink/10"
+            className="grid size-10 place-items-center rounded-full glass-control"
           >
             <motion.span key={String(saved)} initial={{ scale: 0.6 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 20 }}>
               <Star className={`size-[18px] ${saved ? 'fill-amber-400 text-amber-400' : 'text-ink-2'}`} />
@@ -106,7 +106,7 @@ export function Hero({ report, loading, updatedAt, onRefresh }: HeroProps) {
             type="button"
             onClick={share}
             aria-label="Share this weather"
-            className="grid size-10 place-items-center rounded-full border border-line bg-surface text-ink-2 backdrop-blur-xl transition-colors hover:bg-ink/10 hover:text-ink"
+            className="grid size-10 place-items-center rounded-full glass-control text-ink-2 hover:text-ink"
           >
             <Share2 className="size-[18px]" />
           </button>

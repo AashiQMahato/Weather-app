@@ -82,7 +82,7 @@ export function HourlyForecast({ hours, title = 'Next 24 hours' }: { hours: Hour
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(i, 12) * 0.025 }}
-              className={`flex min-w-[4.25rem] snap-start flex-col items-center gap-1.5 rounded-2xl px-2 py-3 ${i === 0 ? 'bg-ink/[0.08] ring-1 ring-ink/[0.06]' : ''}`}
+              className={`flex min-w-[4.25rem] snap-start flex-col items-center gap-1.5 rounded-2xl px-2 py-3 ${i === 0 ? 'glass-pill' : ''}`}
             >
               <span className="text-xs font-medium text-ink-2">{label(h, i)}</span>
               <WeatherGlyph kind={c.glyph} isDay={h.isDay} size={30} label={c.label} />

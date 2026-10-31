@@ -44,13 +44,13 @@ export function ForecastView() {
                 ariaLabel="Daily high temperature for the next 14 days"
               />
               <dl className="mt-4 grid grid-cols-2 gap-2">
-                <div className="rounded-xl bg-ink/[0.05] px-3 py-2.5">
+                <div className="rounded-xl glass-1 px-3 py-2.5">
                   <dt className="text-[11px] font-medium text-ink-3">Warmest day</dt>
                   <dd className="text-sm font-semibold">
                     {weekday(warmest.date, report.current.time, 'long')} · {temperature(warmest.max, units)}
                   </dd>
                 </div>
-                <div className="rounded-xl bg-ink/[0.05] px-3 py-2.5">
+                <div className="rounded-xl glass-1 px-3 py-2.5">
                   <dt className="text-[11px] font-medium text-ink-3">Wettest day</dt>
                   <dd className="text-sm font-semibold">
                     {wettest.precipitationSum > 0 ? `${weekday(wettest.date, report.current.time, 'long')} · ${wettest.precipitationProbability}%` : 'No rain expected'}

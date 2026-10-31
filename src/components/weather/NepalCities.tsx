@@ -42,7 +42,7 @@ export function NepalCities() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 aria-current={selected ? 'true' : undefined}
-                className={`flex w-full items-center justify-between gap-2 rounded-2xl px-3 py-2.5 text-left transition-colors ${selected ? 'bg-ink/[0.12] ring-1 ring-ink/20' : 'bg-ink/[0.04] hover:bg-ink/[0.08]'}`}
+                className={`flex w-full items-center justify-between gap-2 rounded-2xl px-3 py-2.5 text-left transition-colors ${selected ? 'glass-pill' : 'glass-1 hover:bg-ink/[0.08]'}`}
               >
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium">{city.place.name}</span>

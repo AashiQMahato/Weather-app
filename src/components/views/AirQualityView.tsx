@@ -105,14 +105,14 @@ export function AirQualityView() {
         <StaggerItem className="lg:col-span-2">
           <Panel title="Health guidance" icon={HeartPulse} className="h-full">
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-ink/[0.05] p-4">
+              <div className="rounded-2xl glass-1 p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold">
                   <Users className="size-4 text-ink-2" aria-hidden />
                   General public
                 </p>
                 <p className="mt-1.5 text-sm leading-relaxed text-ink-2">{level.general}</p>
               </div>
-              <div className="rounded-2xl bg-ink/[0.05] p-4">
+              <div className="rounded-2xl glass-1 p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold">
                   <HeartPulse className="size-4 text-ink-2" aria-hidden />
                   Sensitive groups

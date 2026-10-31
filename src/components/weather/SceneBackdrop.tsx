@@ -106,6 +106,13 @@ function SceneLayers({ scene }: { scene: Scene }) {
       );
     case 'cloudy':
       return <>{clouds(4, 'text-white', 0.2)}</>;
+    case 'cloudy-night':
+      return (
+        <>
+          <div className="absolute right-[12%] top-[10%] size-16 rounded-full bg-slate-200/50 blur-[2px]" />
+          {clouds(4, 'text-slate-400', 0.16)}
+        </>
+      );
     case 'rain':
       return (
         <>
@@ -167,11 +174,15 @@ export const SceneBackdrop = memo(function SceneBackdrop({ scene }: { scene: Sce
           transition={{ duration: 1.2, ease: 'easeInOut' }}
         >
           <div className="sky" />
+          {/* Ambient light sources the glass picks up and refracts. */}
+          <div className="absolute -left-[15%] top-[35%] size-[42rem] rounded-full blur-[110px]" style={{ background: 'var(--orb-b)', animation: 'orb 38s ease-in-out infinite' }} />
+          <div className="absolute -right-[10%] -top-[18%] size-[46rem] rounded-full blur-[120px]" style={{ background: 'var(--orb-a)', animation: 'orb 46s ease-in-out infinite reverse' }} />
           <motion.div className="absolute inset-0" style={{ y }}>
             <SceneLayers scene={scene} />
           </motion.div>
         </motion.div>
       </AnimatePresence>
+      <div className="grain" />
     </div>
   );
 });

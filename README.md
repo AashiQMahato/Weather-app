@@ -20,6 +20,29 @@ Also included: search with autocomplete (Nepal first, with Devanagari names), cu
 weather sharing (Web Share API or a copied link), skeleton loading, empty and error states, keyboard shortcuts
 (`/` focuses search), and reduced-motion support.
 
+## Design: Liquid Glass
+
+Skycast's visual identity is a Liquid Glass-inspired system defined once in `src/app/globals.css`:
+
+| Tier | Class | Used for |
+| --- | --- | --- |
+| Hero | `.glass-hero` | The weather hero: lightest frost so the sky shows through |
+| 1 | `.glass-1` | Tiles inside panels: tint and edge only, no blur of its own (cheap) |
+| 2 | `.panel` | Cards and panels: frosted glass with a specular edge and an inner highlight |
+| 3 | `.panel-strong` | Floating chrome (sidebar, tab bar, modals, popovers, toasts, map overlays): dense frost |
+| – | `.glass-control`, `.glass-pill` | Inputs, icon buttons, and the lens-like selected state for navigation |
+
+- **Weather-responsive.** `html[data-weather]` (sunny, rain, cloudy, night, storm, snow, fog) retunes the tint, frost,
+  edge light and reflection color for both themes: warm gold for sun, deeper cool frost for rain, navy with
+  moonlight for night.
+- **Light that moves.** On desktop, one throttled pointer listener (`GlassPointer`) moves each surface's
+  reflection toward the cursor. Interactive cards lift, brighten and run a slow edge highlight on hover. The top
+  bar frosts once content scrolls beneath it.
+- **Atmosphere.** Weather gradients, drifting ambient light orbs, cloud illustrations, rain, snow, fog and stars,
+  plus a static grain texture. Effects animate only `transform` and `opacity`.
+- **Guardrails.** Blur is limited to tiers 2 and 3, and tiles never blur. Browsers without `backdrop-filter` get
+  denser fallbacks, forced-colors mode drops translucency, and `prefers-reduced-motion` stops all motion.
+
 ## Getting started
 
 ```bash

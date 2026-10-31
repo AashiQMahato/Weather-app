@@ -11,7 +11,7 @@ interface EmptyStateProps {
 export function EmptyState({ icon: Icon, title, body, action, role }: EmptyStateProps) {
   return (
     <div role={role} className="flex flex-col items-center px-6 py-10 text-center">
-      <span className="grid size-12 place-items-center rounded-2xl bg-ink/[0.06] text-ink-2">
+      <span className="grid size-12 place-items-center rounded-2xl glass-1 text-ink-2">
         <Icon className="size-6" strokeWidth={1.5} aria-hidden />
       </span>
       <h3 className="mt-4 text-base font-semibold">{title}</h3>
@@ -36,7 +36,7 @@ export function GhostButton({ className = '', ...props }: React.ButtonHTMLAttrib
     <button
       type="button"
       {...props}
-      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-line bg-ink/[0.04] px-3.5 text-sm font-medium text-ink-2 transition-colors hover:bg-ink/[0.08] hover:text-ink disabled:opacity-50 ${className}`}
+      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-line glass-1 px-3.5 text-sm font-medium text-ink-2 transition-colors hover:bg-ink/[0.08] hover:text-ink disabled:opacity-50 ${className}`}
     />
   );
 }

@@ -26,7 +26,7 @@ export function AiView() {
         title="AI Weather"
         description={`An analyst, an assistant and practical recommendations for ${place.name}, all grounded in live forecast data.`}
         action={
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${ai.enabled ? 'bg-good/15 text-good' : 'bg-ink/[0.06] text-ink-3'}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${ai.enabled ? 'bg-good/15 text-good' : 'glass-1 text-ink-3'}`}>
             <Sparkles className="size-3.5" aria-hidden />
             {!ai.checked ? 'Checking AI…' : ai.enabled ? `Groq · ${ai.model?.split('/').pop()}` : 'AI offline: automatic summaries'}
           </span>

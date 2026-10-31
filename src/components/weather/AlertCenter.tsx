@@ -135,7 +135,7 @@ export function AlertCenter({ report, explainedRisks }: { report: WeatherReport;
           </ul>
         )}
         {alerts && alerts.alerts.length === 0 && (
-          <div className="flex items-start gap-3 rounded-2xl bg-ink/[0.05] p-3.5">
+          <div className="flex items-start gap-3 rounded-2xl glass-1 p-3.5">
             <Info className="mt-0.5 size-4 shrink-0 text-ink-3" aria-hidden />
             <p className="text-sm leading-relaxed text-ink-2">
               {alerts.supported && !alerts.note ? 'No active official alerts for this location.' : alerts.note}

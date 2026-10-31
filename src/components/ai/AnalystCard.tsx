@@ -78,7 +78,7 @@ export function AnalystCard({ data, loading, error, onRefresh, variant = 'compac
                 {analysis.keyInsights.slice(0, variant === 'full' ? 6 : 3).map((k, i) => {
                   const Icon = TOPIC_ICON[k.topic] ?? Sun;
                   return (
-                    <motion.li key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.06 }} className="flex gap-2.5 rounded-xl bg-ink/[0.045] px-3 py-2.5 text-sm leading-relaxed text-ink-2">
+                    <motion.li key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.06 }} className="flex gap-2.5 rounded-xl glass-1 px-3 py-2.5 text-sm leading-relaxed text-ink-2">
                       <Icon className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
                       {k.text}
                     </motion.li>

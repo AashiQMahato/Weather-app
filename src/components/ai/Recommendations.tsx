@@ -37,7 +37,7 @@ export function Recommendations({ items }: { items: Recommendation[] }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05, duration: 0.45 }}
             whileHover={{ y: -3 }}
-            className="panel flex flex-col p-5"
+            className="panel glass-interactive flex flex-col p-5"
           >
             <div className="flex items-start justify-between gap-3">
               <span className={`grid size-11 place-items-center rounded-2xl bg-gradient-to-br ${cat.gradient} text-white shadow-lg`} aria-hidden>

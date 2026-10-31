@@ -1,18 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'motion/react';
-import { Monitor, Moon, MoreHorizontal, Sun } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { Monitor, Moon, MoreHorizontal, Sparkles, Sun } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Segmented } from '@/components/ui/Segmented';
 import { SceneBackdrop } from '@/components/weather/SceneBackdrop';
-import { describeCondition } from '@/lib/weather/conditions';
+import { describeCondition, glassMood } from '@/lib/weather/conditions';
 import type { ThemePreference } from '@/lib/types';
 import { usePreferences } from '@/providers/PreferencesProvider';
 import { useWeatherReport } from '@/providers/WeatherProvider';
 import { MOBILE_MORE, MOBILE_PRIMARY, NAV_ITEMS, isActive } from './nav';
+import { GlassPointer } from './GlassPointer';
 import { SearchBar } from './SearchBar';
 
 function Logo({ compact = false }: { compact?: boolean }) {
@@ -71,7 +72,7 @@ function UnitsSwitcher() {
 
 function Sidebar({ pathname }: { pathname: string }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-surface px-4 py-6 backdrop-blur-2xl lg:flex">
+    <aside className="panel-strong fixed inset-y-3 left-3 z-30 hidden w-60 flex-col rounded-[1.75rem] px-3 py-5 lg:flex">
       <div className="px-2">
         <Logo />
       </div>
@@ -89,7 +90,7 @@ function Sidebar({ pathname }: { pathname: string }) {
                   {active && (
                     <motion.span
                       layoutId="nav-active"
-                      className="absolute inset-0 rounded-xl bg-ink/[0.09] ring-1 ring-ink/[0.06]"
+                      className="glass-pill absolute inset-0 rounded-xl"
                       transition={{ type: 'spring', stiffness: 420, damping: 36 }}
                     />
                   )}
@@ -130,7 +131,7 @@ function MobileNav({ pathname }: { pathname: string }) {
           return (
             <Link key={item.href} href={item.href} aria-current={active ? 'page' : undefined} className={tab(active)}>
               {active && (
-                <motion.span layoutId="tab-active" className="absolute inset-x-2 inset-y-1.5 rounded-2xl bg-ink/[0.08]" transition={{ type: 'spring', stiffness: 420, damping: 36 }} />
+                <motion.span layoutId="tab-active" className="glass-pill absolute inset-x-1.5 inset-y-1.5 rounded-2xl" transition={{ type: 'spring', stiffness: 420, damping: 36 }} />
               )}
               <item.icon className="relative size-5" strokeWidth={active ? 2.2 : 1.8} aria-hidden />
               <span className="relative">{item.short}</span>
@@ -138,7 +139,7 @@ function MobileNav({ pathname }: { pathname: string }) {
           );
         })}
         <button type="button" onClick={() => setMoreOpen(true)} className={tab(moreActive)} aria-haspopup="dialog">
-          {moreActive && <motion.span layoutId="tab-active" className="absolute inset-x-2 inset-y-1.5 rounded-2xl bg-ink/[0.08]" />}
+          {moreActive && <motion.span layoutId="tab-active" className="glass-pill absolute inset-x-1.5 inset-y-1.5 rounded-2xl" />}
           <MoreHorizontal className="relative size-5" aria-hidden />
           <span className="relative">More</span>
         </button>
@@ -152,7 +153,7 @@ function MobileNav({ pathname }: { pathname: string }) {
                 href={item.href}
                 onClick={() => setMoreOpen(false)}
                 aria-current={isActive(pathname, item.href) ? 'page' : undefined}
-                className="flex h-12 items-center gap-3 rounded-xl px-3 text-[15px] font-medium hover:bg-ink/[0.06] aria-[current=page]:bg-ink/[0.08]"
+                className={`flex h-12 items-center gap-3 rounded-xl px-3 text-[15px] font-medium ${isActive(pathname, item.href) ? 'glass-pill' : 'hover:bg-ink/[0.06]'}`}
               >
                 <item.icon className="size-5 text-ink-2" aria-hidden />
                 {item.label}
@@ -169,10 +170,47 @@ function MobileNav({ pathname }: { pathname: string }) {
   );
 }
 
+function AskAiButton({ pathname }: { pathname: string }) {
+  const hidden = pathname.startsWith('/ai') || pathname.startsWith('/maps');
+  return (
+    <AnimatePresence>
+      {!hidden && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 12 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+          className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-30 lg:bottom-8 lg:right-8"
+        >
+          <Link href="/ai" className="panel-strong glass-interactive flex h-12 items-center gap-2 rounded-full pl-1.5 pr-1.5 text-sm font-semibold shadow-2xl sm:pr-4" aria-label="Ask the AI weather assistant">
+            <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-sky-400 via-indigo-500 to-fuchsia-500 text-white shadow-lg shadow-indigo-500/30">
+              <Sparkles className="size-4" aria-hidden />
+            </span>
+            <span className="hidden sm:inline">Ask AI</span>
+          </Link>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { report } = useWeatherReport();
   const scene = report ? describeCondition(report.current.weatherCode, report.current.isDay).scene : 'clear-day';
+  const [scrolled, setScrolled] = useState(false);
+
+  // Glass tint follows the weather: sunny, rain, night…
+  useEffect(() => {
+    document.documentElement.dataset.weather = glassMood(scene);
+  }, [scene]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <>
@@ -180,9 +218,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-canvas">
         Skip to content
       </a>
+      <GlassPointer />
       <Sidebar pathname={pathname} />
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 border-b border-transparent">
+      <div className="lg:pl-[16.5rem]">
+        <header className="topbar sticky top-0 z-20" data-scrolled={scrolled}>
           <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6 lg:px-8 lg:py-4">
             <div className="lg:hidden">
               <Logo compact />
@@ -196,6 +235,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+      <AskAiButton pathname={pathname} />
       <MobileNav pathname={pathname} />
     </>
   );

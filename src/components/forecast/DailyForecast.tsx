@@ -124,7 +124,7 @@ export function DailyForecast({ days, today, currentTemperature, allowExtended =
                           { icon: Sunset, label: 'Sunset', value: clock(day.sunset, clockFormat), sub: '' },
                           { icon: Sunrise, label: 'Daylight', value: duration(day.daylightSeconds / 60), sub: '' },
                         ].map((item) => (
-                          <div key={item.label} className="rounded-xl bg-ink/[0.05] px-3 py-2">
+                          <div key={item.label} className="rounded-xl glass-1 px-3 py-2">
                             <dt className="flex items-center gap-1 text-[11px] font-medium text-ink-3">
                               <item.icon className="size-3" aria-hidden />
                               {item.label}

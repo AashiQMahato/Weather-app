@@ -171,7 +171,7 @@ export function SearchBar() {
             setActive(0);
           }}
           onKeyDown={onKeyDown}
-          className="h-10 w-full rounded-full border border-line bg-surface pl-10 pr-10 text-[15px] text-ink placeholder:text-ink-3 backdrop-blur-xl transition-colors focus:border-ink/30 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+          className="h-10 w-full rounded-full glass-control pl-10 pr-10 text-[15px] text-ink placeholder:text-ink-3 focus:border-ink/30 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
         />
         <span className="pointer-events-none absolute right-3.5 top-1/2 hidden -translate-y-1/2 rounded-md border border-line px-1.5 text-[11px] font-medium text-ink-3 lg:block [input:focus~&]:hidden">
           /
@@ -242,7 +242,7 @@ export function SearchBar() {
         disabled={locating}
         aria-label="Use my location"
         title="Use my location"
-        className="grid size-10 shrink-0 place-items-center rounded-full border border-line bg-surface text-ink backdrop-blur-xl transition-colors hover:bg-ink/10 disabled:opacity-60"
+        className="grid size-10 shrink-0 place-items-center rounded-full glass-control text-ink disabled:opacity-60"
       >
         {locating ? <LoaderCircle className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
       </button>

@@ -52,7 +52,7 @@ function SavedCard({ city, selected, compareOn, onSelect, onToggleCompare, onRem
   const c = describeCondition(city.weatherCode, city.isDay);
 
   return (
-    <motion.li layout initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className={`panel relative overflow-hidden ${selected ? 'ring-2 ring-accent/60' : ''}`}>
+    <motion.li layout initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className={`panel glass-interactive overflow-hidden ${selected ? 'ring-2 ring-accent/60' : ''}`}>
       <button type="button" onClick={onSelect} className="block w-full p-5 text-left" aria-label={`Show weather for ${city.place.name}`}>
         <div className="flex items-start justify-between gap-3 pr-16">
           <div className="min-w-0">
@@ -239,7 +239,7 @@ export function LocationsView() {
               {result && (
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-6 space-y-5">
                   {result.ai ? (
-                    <div className="rounded-2xl border border-line bg-ink/[0.03] p-4 sm:p-5">
+                    <div className="rounded-2xl border border-line glass-1 p-4 sm:p-5">
                       <div className="flex items-center gap-3">
                         <AiBadge size="sm" />
                         <p className="flex items-center gap-1.5 text-sm font-semibold">
@@ -264,7 +264,7 @@ export function LocationsView() {
                       <p className="mt-3 text-[11px] text-ink-3">AI interpretation of the live data below. Check conditions before you go.</p>
                     </div>
                   ) : (
-                    result.notice && <p className="rounded-2xl bg-ink/[0.05] px-4 py-3 text-sm text-ink-2">{result.notice}</p>
+                    result.notice && <p className="rounded-2xl glass-1 px-4 py-3 text-sm text-ink-2">{result.notice}</p>
                   )}
 
                   <div className="-mx-5 overflow-x-auto px-5 sm:-mx-6 sm:px-6">
