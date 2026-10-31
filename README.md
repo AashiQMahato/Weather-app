@@ -89,7 +89,7 @@ wrapped in an Apple Liquid Glass-inspired interface.
 | :-: | --- | --- |
 | 🏠 | **Overview** | Animated hero, AI analyst, 24-hour chart, nine metric cards with 24-hour detail views, alerts and risks, 7-day forecast, sun path, Across Nepal |
 | 📅 | **Forecast** | 48-hour charts (temperature, rain, wind), a 7- or 14-day outlook with expandable days, daily highs, sunrise and sunset |
-| 🗺️ | **Weather Maps** | RainViewer radar playback, plus temperature, wind, cloud and precipitation layers sampled live from Open-Meteo |
+| 🗺️ | **Weather Maps** | A real world map with five styles (Map, Streets, Satellite, Terrain, Dark), RainViewer radar playback, and live temperature, wind, cloud and precipitation layers from Open-Meteo |
 | ✨ | **AI Weather** | Streaming assistant that can look up other cities, a full analyst briefing, risk insights and smart recommendations |
 | 🌫️ | **Air Quality** | US EPA AQI gauge, 24-hour AQI, health guidance, and six pollutants against WHO 2021 guidelines |
 | ⭐ | **Saved Locations** | Live weather and local time per place, with an AI verdict on which place suits an activity best |
@@ -170,7 +170,7 @@ fallbacks, and forced-colors and reduced-motion modes are respected.
 | --- | --- | --- |
 | Forecast, geocoding, air quality | [Open-Meteo](https://open-meteo.com/) | Free for non-commercial use, no key; cached 10 min |
 | Radar | [RainViewer](https://www.rainviewer.com/api.html) | Free tiles with attribution; native zoom up to 7 |
-| Base map | [OpenStreetMap](https://www.openstreetmap.org/copyright) · [CARTO](https://carto.com/attributions) | Free with attribution for light traffic |
+| World maps | [CARTO](https://carto.com/attributions) Voyager & Dark · [OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) · [Esri World Imagery](https://www.esri.com/) · [OpenTopoMap](https://opentopomap.org/) | Free, keyless tiles with attribution. If one provider fails to load, the map switches to another automatically. Heavy commercial traffic should move to a paid tile plan (MapTiler, Stadia, Mapbox) |
 | Official alerts | [US National Weather Service](https://www.weather.gov/documentation/services-web-api) | US only. Nepal's DHM has no public alert API, so Skycast links to [DHM](https://www.dhm.gov.np/) instead |
 | AI | [Groq](https://console.groq.com/docs) | Uses your API key and plan |
 
