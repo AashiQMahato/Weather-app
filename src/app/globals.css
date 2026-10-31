@@ -138,6 +138,9 @@ body {
 }
 
 /* ----------------------------------------------------------- liquid glass */
+/* Note: always write -webkit-backdrop-filter BEFORE backdrop-filter. The CSS
+   minifier keeps only the last of the pair, and Chrome/Firefox need the
+   unprefixed one. */
 /* Three tiers keep hierarchy clear and blur affordable:
    glass-1  tint + edge only (no blur), for tiles inside panels
    .panel   frosted card (tier 2), the default surface
@@ -252,16 +255,16 @@ body {
   .panel {
     background: linear-gradient(155deg, rgb(var(--g-tint) / var(--g-a1)) 0%, rgb(var(--g-tint) / var(--g-a2)) 100%);
     box-shadow: var(--g-inner), var(--g-shadow);
-    backdrop-filter: blur(var(--g-blur)) saturate(var(--g-sat));
     -webkit-backdrop-filter: blur(var(--g-blur)) saturate(var(--g-sat));
+    backdrop-filter: blur(var(--g-blur)) saturate(var(--g-sat));
   }
 
   /* Tier 3: dense floating chrome. */
   .panel-strong {
     background: linear-gradient(160deg, rgb(var(--g3-bg) / calc(var(--g3-a) - 0.06)) 0%, rgb(var(--g3-bg) / calc(var(--g3-a) + 0.08)) 100%);
     box-shadow: var(--g-inner), 0 28px 60px -28px rgb(2 6 23 / 0.6);
-    backdrop-filter: blur(32px) saturate(180%);
     -webkit-backdrop-filter: blur(32px) saturate(180%);
+    backdrop-filter: blur(32px) saturate(180%);
   }
 
   /* Hero: the lightest frost so the sky stays the star. */
@@ -269,8 +272,8 @@ body {
     border-radius: 2rem;
     background: linear-gradient(160deg, rgb(var(--g-tint) / calc(var(--g-a1) * 0.75)) 0%, rgb(var(--g-tint) / calc(var(--g-a2) * 0.35)) 70%);
     box-shadow: var(--g-inner), var(--g-shadow);
-    backdrop-filter: blur(10px) saturate(150%);
     -webkit-backdrop-filter: blur(10px) saturate(150%);
+    backdrop-filter: blur(10px) saturate(150%);
   }
 
   /* Specular edge: brighter where light hits the top-left, fading around the rim. */
@@ -325,8 +328,8 @@ body {
   .glass-control {
     background: linear-gradient(180deg, rgb(var(--g-tint) / calc(var(--g-a1) + 0.03)), rgb(var(--g-tint) / var(--g-a2)));
     box-shadow: var(--g-inner), inset 0 0 0 1px var(--g-edge-soft), 0 6px 16px -10px rgb(2 6 23 / 0.4);
-    backdrop-filter: blur(14px) saturate(160%);
     -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
     transition: background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
   }
   .glass-control:hover {
@@ -353,15 +356,39 @@ body {
   to { --glass-angle: 510deg; }
 }
 
-/* Top bar gains glass once content scrolls beneath it. */
+/* Top bar: once content scrolls beneath it, a progressive blur fades in.
+   The frosted layer is masked to dissolve toward its lower edge (no hard
+   band), extends under the sidebar (no side edge) and is tinted toward the
+   page color so content behind it recedes instead of competing. */
 .topbar {
-  transition: background 300ms ease, box-shadow 300ms ease, backdrop-filter 300ms ease;
+  isolation: isolate;
 }
-.topbar[data-scrolled="true"] {
-  background: linear-gradient(180deg, rgb(var(--g-tint) / var(--g-a1)), rgb(var(--g-tint) / var(--g-a2)));
-  box-shadow: inset 0 -1px 0 var(--g-edge-soft), 0 12px 30px -24px rgb(2 6 23 / 0.6);
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
+.topbar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -28px 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--canvas) 62%, transparent) 0%, color-mix(in oklab, var(--canvas) 30%, transparent) 60%, transparent 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 52%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 52%, transparent 100%);
+  transition: opacity 320ms ease;
+}
+@media (min-width: 1024px) {
+  .topbar::before {
+    left: -16.5rem;
+  }
+}
+.topbar[data-scrolled="true"]::before {
+  opacity: 1;
+}
+/* Controls get denser glass while floating over content. */
+.topbar[data-scrolled="true"] .glass-control {
+  background: linear-gradient(180deg, rgb(var(--g3-bg) / calc(var(--g3-a) + 0.04)), rgb(var(--g3-bg) / calc(var(--g3-a) + 0.12)));
+  box-shadow: var(--g-inner), inset 0 0 0 1px var(--g-edge-soft), 0 10px 26px -14px rgb(2 6 23 / 0.5);
 }
 
 /* Browsers without backdrop-filter get denser surfaces so text stays readable. */
@@ -492,8 +519,8 @@ body {
   border-radius: 14px !important;
   overflow: hidden;
   box-shadow: var(--g-inner), inset 0 0 0 1px var(--g-edge-soft), 0 10px 24px -12px rgb(2 6 23 / 0.5) !important;
-  backdrop-filter: blur(18px) saturate(170%);
   -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
 }
 .leaflet-bar a,
 .leaflet-bar a:hover {
@@ -505,8 +532,8 @@ body {
   background: rgb(var(--g3-bg) / 0.55);
   color: var(--ink-3);
   border-top-left-radius: 10px;
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 .leaflet-container .leaflet-control-attribution a {
   color: var(--ink-2);
