@@ -3,19 +3,21 @@
 import 'leaflet/dist/leaflet.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
-import { CircleMarker, MapContainer, Marker, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet';
-import { LoaderCircle, Pause, Play, TriangleAlert } from 'lucide-react';
+import { CircleMarker, MapContainer, Marker, Pane, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet';
+import { Check, Crosshair, Earth, Layers, LoaderCircle, Pause, Play, TriangleAlert } from 'lucide-react';
 import { getGrid, getRadar } from '@/lib/api';
 import { speedValue, speedUnit, tempValue } from '@/lib/weather/format';
 import type { GridPoint, Place, RadarFrames, Units } from '@/lib/types';
+import { BASEMAPS, BASEMAP_ORDER, FALLBACK, type BasemapId } from './basemaps';
 
 export type MapLayer = 'radar' | 'precipitation' | 'temperature' | 'wind' | 'clouds';
 
 interface WeatherMapProps {
   place: Place;
   layer: MapLayer;
-  theme: 'light' | 'dark';
   units: Units;
+  basemap: BasemapId;
+  onBasemapChange: (id: BasemapId) => void;
 }
 
 // Sequential temperature ramp (°C stops), cold blue to hot red.
@@ -101,12 +103,71 @@ function gridIcon(point: GridPoint, layer: MapLayer, units: Units) {
   return L.divIcon({ html, className: 'grid-label', iconSize: [56, 32], iconAnchor: [28, 16] });
 }
 
+/**
+ * World basemap tiles. If a provider fails to deliver any tiles (blocked
+ * network, outage), it reports failure so the map can switch providers.
+ */
+function BaseTiles({ id, onFail }: { id: BasemapId; onFail: () => void }) {
+  const basemap = BASEMAPS[id];
+  const stats = useRef({ loaded: 0, errors: 0 });
+  useEffect(() => {
+    stats.current = { loaded: 0, errors: 0 };
+    const timer = window.setTimeout(() => {
+      if (stats.current.loaded === 0 && stats.current.errors > 0) onFail();
+    }, 7000);
+    return () => window.clearTimeout(timer);
+  }, [id, onFail]);
+  const handlers = useMemo(
+    () => ({
+      tileload: () => {
+        stats.current.loaded += 1;
+      },
+      tileerror: () => {
+        stats.current.errors += 1;
+        if (stats.current.loaded === 0 && stats.current.errors >= 12) onFail();
+      },
+    }),
+    [onFail],
+  );
+  return (
+    <>
+      <TileLayer
+        key={id}
+        url={basemap.url}
+        subdomains={basemap.subdomains ?? 'abc'}
+        attribution={basemap.attribution}
+        maxNativeZoom={basemap.maxNativeZoom}
+        maxZoom={19}
+        detectRetina={false}
+        eventHandlers={handlers}
+      />
+      {basemap.labels && (
+        <Pane name="labels" style={{ zIndex: 450, pointerEvents: 'none' }}>
+          <TileLayer key={`${id}-labels`} url={basemap.labels.url} subdomains={basemap.labels.subdomains ?? 'abc'} maxNativeZoom={basemap.maxNativeZoom} maxZoom={19} />
+        </Pane>
+      )}
+    </>
+  );
+}
+
 function frameLabel(time: number, isForecast: boolean) {
   const t = new Date(time * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   return isForecast ? `${t} · forecast` : t;
 }
 
-export default function WeatherMap({ place, layer, theme, units }: WeatherMapProps) {
+export default function WeatherMap({ place, layer, units, basemap, onBasemapChange }: WeatherMapProps) {
+  const [map, setMap] = useState<L.Map | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [fallbackNote, setFallbackNote] = useState<string | null>(null);
+  const handleTileFailure = useCallback(() => {
+    const next = FALLBACK[basemap];
+    if (!next) {
+      setFallbackNote('Map tiles could not be loaded on this network.');
+      return;
+    }
+    setFallbackNote(`${BASEMAPS[basemap].label} tiles didn’t load, so we switched to ${BASEMAPS[next].label}.`);
+    onBasemapChange(next);
+  }, [basemap, onBasemapChange]);
   const [radar, setRadar] = useState<RadarFrames | null>(null);
   const [radarError, setRadarError] = useState(false);
   const [frame, setFrame] = useState(0);
@@ -139,27 +200,24 @@ export default function WeatherMap({ place, layer, theme, units }: WeatherMapPro
     <div className="relative h-full w-full overflow-hidden rounded-[1.25rem]">
       <style>{`
         .grid-pill{display:inline-block;padding:3px 8px;border-radius:999px;color:#fff;font:600 12px/1.2 var(--font-sans);box-shadow:0 2px 6px rgb(0 0 0/.3);transform:translate(8px,6px)}
-        .grid-wind{display:flex;align-items:center;gap:2px;color:var(--ink);font:600 11px var(--font-sans);text-shadow:0 1px 2px var(--canvas)}
+        .grid-wind{display:flex;align-items:center;gap:2px;padding:2px 6px 2px 2px;border-radius:999px;background:rgb(15 23 42/.72);color:#fff;font:600 11px var(--font-sans);box-shadow:0 2px 6px rgb(0 0 0/.25)}
         .grid-cloud,.grid-rain{display:inline-flex;flex-direction:column;align-items:center;padding:3px 7px;border-radius:10px;font:600 11px/1.15 var(--font-sans);color:#0f172a;transform:translate(6px,4px)}
         .grid-rain{color:#fff}.grid-rain small{font-weight:500;font-size:9px;opacity:.9}
         .leaflet-tooltip{font-family:var(--font-sans)}
       `}</style>
-      <MapContainer center={[place.latitude, place.longitude]} zoom={6} minZoom={3} maxZoom={11} worldCopyJump className="h-full w-full" attributionControl>
-        <TileLayer
-          key={theme}
-          url={`https://{s}.basemaps.cartocdn.com/${theme === 'dark' ? 'dark_all' : 'light_all'}/{z}/{x}/{y}{r}.png`}
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          subdomains="abcd"
-        />
+      <MapContainer ref={setMap} center={[place.latitude, place.longitude]} zoom={6} minZoom={2} maxZoom={14} worldCopyJump className="h-full w-full" attributionControl>
+        <BaseTiles id={basemap} onFail={handleTileFailure} />
         {layer === 'radar' && radar && current && (
-          <TileLayer
-            key={current.path}
-            url={`${radar.host}${current.path}/256/{z}/{x}/{y}/2/1_1.png`}
-            opacity={0.75}
-            maxNativeZoom={7}
-            maxZoom={11}
-            attribution='Radar &copy; <a href="https://www.rainviewer.com/">RainViewer</a>'
-          />
+          <Pane name="weather" style={{ zIndex: 350 }}>
+            <TileLayer
+              key={current.path}
+              url={`${radar.host}${current.path}/256/{z}/{x}/{y}/2/1_1.png`}
+              opacity={0.75}
+              maxNativeZoom={7}
+              maxZoom={14}
+              attribution='Radar &copy; <a href="https://www.rainviewer.com/">RainViewer</a>'
+            />
+          </Pane>
         )}
         {layer !== 'radar' && <GridLoader onData={setGrid} onState={setGridState} />}
         {icons.map(({ p, icon }) => (
@@ -213,8 +271,54 @@ export default function WeatherMap({ place, layer, theme, units }: WeatherMapPro
         <Legend layer={layer} units={units} />
       </div>
 
+      {/* Basemap and view controls */}
+      <div className="absolute right-3 top-3 z-[600] flex flex-col items-end gap-2">
+        <div className="flex gap-2">
+          <button type="button" onClick={() => map?.flyTo([place.latitude, place.longitude], 7, { duration: 1 })} aria-label={`Center on ${place.name}`} title={`Center on ${place.name}`} className="panel-strong grid size-10 place-items-center rounded-full shadow-lg">
+            <Crosshair className="size-4" aria-hidden />
+          </button>
+          <button type="button" onClick={() => map?.flyTo([22, 20], 2, { duration: 1.2 })} aria-label="Show the whole world" title="Whole world" className="panel-strong grid size-10 place-items-center rounded-full shadow-lg">
+            <Earth className="size-4" aria-hidden />
+          </button>
+          <button type="button" onClick={() => setPickerOpen((v) => !v)} aria-expanded={pickerOpen} aria-haspopup="true" className="panel-strong flex h-10 items-center gap-2 rounded-full px-3.5 text-sm font-semibold shadow-lg">
+            <Layers className="size-4" aria-hidden />
+            {BASEMAPS[basemap].label}
+          </button>
+        </div>
+        {pickerOpen && (
+          <ul role="menu" aria-label="Base map" className="panel-strong w-64 rounded-2xl p-1.5 shadow-2xl">
+            {BASEMAP_ORDER.map((id) => (
+              <li key={id} role="none">
+                <button
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={id === basemap}
+                  onClick={() => {
+                    onBasemapChange(id);
+                    setFallbackNote(null);
+                    setPickerOpen(false);
+                  }}
+                  className={`flex w-full items-start gap-2.5 rounded-xl px-3 py-2 text-left ${id === basemap ? 'glass-pill' : 'hover:bg-ink/[0.06]'}`}
+                >
+                  <Check className={`mt-0.5 size-4 shrink-0 ${id === basemap ? 'text-accent' : 'opacity-0'}`} aria-hidden />
+                  <span>
+                    <span className="block text-sm font-semibold">{BASEMAPS[id].label}</span>
+                    <span className="block text-xs text-ink-3">{BASEMAPS[id].description}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {fallbackNote && (
+          <p role="status" className="panel-strong max-w-64 rounded-2xl px-3 py-2 text-xs text-ink-2 shadow-lg">
+            {fallbackNote}
+          </p>
+        )}
+      </div>
+
       {layer !== 'radar' && gridState !== 'idle' && (
-        <div className="panel-strong absolute right-3 top-3 z-[500] flex items-center gap-2 rounded-full px-3 py-1.5 text-xs shadow">
+        <div className="panel-strong absolute left-1/2 top-3 z-[500] flex -translate-x-1/2 items-center gap-2 rounded-full px-3 py-1.5 text-xs shadow">
           {gridState === 'loading' ? <LoaderCircle className="size-3.5 animate-spin" aria-hidden /> : <TriangleAlert className="size-3.5 text-critical" aria-hidden />}
           {gridState === 'loading' ? 'Sampling live data…' : 'Could not load this layer'}
         </div>
