@@ -134,7 +134,7 @@ function BaseTiles({ id, onFail }: { id: BasemapId; onFail: () => void }) {
       <TileLayer
         key={id}
         url={basemap.url}
-        subdomains={basemap.subdomains ?? 'abc'}
+        subdomains={basemap.subdomains ?? ''}
         attribution={basemap.attribution}
         maxNativeZoom={basemap.maxNativeZoom}
         maxZoom={19}
@@ -143,7 +143,7 @@ function BaseTiles({ id, onFail }: { id: BasemapId; onFail: () => void }) {
       />
       {basemap.labels && (
         <Pane name="labels" style={{ zIndex: 450, pointerEvents: 'none' }}>
-          <TileLayer key={`${id}-labels`} url={basemap.labels.url} subdomains={basemap.labels.subdomains ?? 'abc'} maxNativeZoom={basemap.maxNativeZoom} maxZoom={19} />
+          <TileLayer key={`${id}-labels`} url={basemap.labels.url} subdomains={basemap.labels.subdomains ?? ''} maxNativeZoom={basemap.maxNativeZoom} maxZoom={19} />
         </Pane>
       )}
     </>
